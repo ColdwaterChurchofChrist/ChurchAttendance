@@ -1,0 +1,626 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Coldwater Church Attendance</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet"/>
+  <style>
+    :root {
+      --navy: #1B2A4A;
+      --gold: #C9A84C;
+      --gold-light: #F0DFA0;
+      --cream: #FDFAF4;
+      --white: #FFFFFF;
+      --gray-100: #F3F4F6;
+      --gray-300: #D1D5DB;
+      --gray-500: #6B7280;
+      --gray-700: #374151;
+      --green: #166534;
+      --green-bg: #DCFCE7;
+      --red: #991B1B;
+      --red-bg: #FEE2E2;
+      --radius: 10px;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--cream);
+      color: var(--gray-700);
+      min-height: 100vh;
+    }
+
+    header {
+      background: var(--navy);
+      color: var(--white);
+      padding: 20px 24px 16px;
+      text-align: center;
+      border-bottom: 4px solid var(--gold);
+    }
+
+    header h1 {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.6rem;
+      letter-spacing: 0.01em;
+      color: var(--white);
+    }
+
+    header p {
+      font-size: 0.8rem;
+      color: var(--gold-light);
+      margin-top: 4px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .container {
+      max-width: 680px;
+      margin: 0 auto;
+      padding: 24px 16px 60px;
+    }
+
+    .card {
+      background: var(--white);
+      border-radius: var(--radius);
+      padding: 20px;
+      margin-bottom: 16px;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.07);
+    }
+
+    .card-title {
+      font-size: 0.7rem;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--gold);
+      margin-bottom: 10px;
+    }
+
+    label {
+      display: block;
+      font-size: 0.85rem;
+      font-weight: 500;
+      margin-bottom: 6px;
+      color: var(--navy);
+    }
+
+    select, input[type="date"], input[type="text"] {
+      width: 100%;
+      padding: 10px 12px;
+      border: 1.5px solid var(--gray-300);
+      border-radius: 8px;
+      font-size: 0.95rem;
+      font-family: 'Inter', sans-serif;
+      color: var(--gray-700);
+      background: var(--white);
+      appearance: none;
+      -webkit-appearance: none;
+    }
+
+    select:focus, input:focus {
+      outline: none;
+      border-color: var(--navy);
+    }
+
+    .field + .field { margin-top: 14px; }
+
+    /* Search */
+    .search-wrap {
+      position: relative;
+      margin-bottom: 12px;
+    }
+    .search-wrap input {
+      padding-left: 36px;
+    }
+    .search-icon {
+      position: absolute;
+      left: 10px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--gray-500);
+      font-size: 1rem;
+      pointer-events: none;
+    }
+
+    /* Attendance toggle bar */
+    .attendance-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px 14px;
+      border-radius: 8px;
+      border: 1.5px solid var(--gray-300);
+      margin-bottom: 8px;
+      background: var(--white);
+      transition: border-color 0.15s;
+    }
+
+    .attendance-bar.present {
+      border-color: #86EFAC;
+      background: var(--green-bg);
+    }
+
+    .attendance-bar.absent {
+      border-color: #FCA5A5;
+      background: var(--red-bg);
+    }
+
+    .member-name {
+      font-size: 0.9rem;
+      font-weight: 500;
+      color: var(--navy);
+      flex: 1;
+    }
+
+    .toggle-group {
+      display: flex;
+      gap: 6px;
+    }
+
+    .toggle-btn {
+      padding: 4px 12px;
+      border-radius: 20px;
+      border: 1.5px solid var(--gray-300);
+      font-size: 0.78rem;
+      font-weight: 600;
+      cursor: pointer;
+      background: var(--white);
+      color: var(--gray-500);
+      transition: all 0.15s;
+    }
+
+    .toggle-btn.active-present {
+      background: var(--green);
+      border-color: var(--green);
+      color: var(--white);
+    }
+
+    .toggle-btn.active-absent {
+      background: var(--red);
+      border-color: var(--red);
+      color: var(--white);
+    }
+
+    .reason-select {
+      margin-top: 6px;
+      margin-bottom: 4px;
+    }
+
+    .reason-select select {
+      font-size: 0.83rem;
+      padding: 7px 10px;
+    }
+
+    /* Stats bar */
+    .stats {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 14px;
+    }
+
+    .stat-pill {
+      flex: 1;
+      text-align: center;
+      background: var(--gray-100);
+      border-radius: 8px;
+      padding: 8px 4px;
+    }
+
+    .stat-pill .num {
+      font-size: 1.3rem;
+      font-weight: 700;
+      color: var(--navy);
+    }
+
+    .stat-pill .lbl {
+      font-size: 0.68rem;
+      text-transform: uppercase;
+      letter-spacing: 0.07em;
+      color: var(--gray-500);
+    }
+
+    .stat-pill.present-pill .num { color: var(--green); }
+    .stat-pill.absent-pill .num { color: var(--red); }
+
+    /* Submit */
+    .submit-btn {
+      width: 100%;
+      padding: 14px;
+      background: var(--navy);
+      color: var(--white);
+      border: none;
+      border-radius: var(--radius);
+      font-size: 1rem;
+      font-weight: 600;
+      font-family: 'Inter', sans-serif;
+      cursor: pointer;
+      margin-top: 8px;
+      transition: background 0.15s;
+      border-bottom: 3px solid var(--gold);
+    }
+
+    .submit-btn:hover { background: #253a63; }
+    .submit-btn:disabled { background: var(--gray-300); border-bottom-color: transparent; cursor: not-allowed; }
+
+    /* Messages */
+    .msg {
+      padding: 14px 16px;
+      border-radius: var(--radius);
+      font-size: 0.88rem;
+      margin-top: 12px;
+      display: none;
+    }
+    .msg.success { background: var(--green-bg); color: var(--green); display: block; }
+    .msg.error { background: var(--red-bg); color: var(--red); display: block; }
+
+    .loading {
+      text-align: center;
+      color: var(--gray-500);
+      font-size: 0.9rem;
+      padding: 30px 0;
+    }
+
+    /* Absence summary */
+    .summary-box {
+      background: #FFF8E7;
+      border: 1.5px solid var(--gold);
+      border-radius: var(--radius);
+      padding: 16px;
+      margin-top: 12px;
+      display: none;
+    }
+
+    .summary-box h3 {
+      font-family: 'Playfair Display', serif;
+      color: var(--navy);
+      font-size: 1rem;
+      margin-bottom: 10px;
+    }
+
+    .summary-group { margin-bottom: 10px; }
+    .summary-group .group-label {
+      font-size: 0.72rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--gray-500);
+      margin-bottom: 4px;
+    }
+    .summary-group .names {
+      font-size: 0.88rem;
+      color: var(--navy);
+      line-height: 1.6;
+    }
+
+    .copy-btn {
+      margin-top: 10px;
+      padding: 8px 16px;
+      background: var(--navy);
+      color: var(--white);
+      border: none;
+      border-radius: 6px;
+      font-size: 0.82rem;
+      font-weight: 600;
+      cursor: pointer;
+      font-family: 'Inter', sans-serif;
+    }
+
+    .copy-btn:hover { background: #253a63; }
+
+    .section-divider {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin: 6px 0 12px;
+    }
+    .section-divider span {
+      font-size: 0.7rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--gray-500);
+      white-space: nowrap;
+    }
+    .section-divider::before, .section-divider::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: var(--gray-300);
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <h1>Coldwater Church of Christ</h1>
+  <p>Attendance Tracker</p>
+</header>
+
+<div class="container">
+
+  <!-- Service Info -->
+  <div class="card">
+    <div class="card-title">Service Details</div>
+
+    <div class="field">
+      <label for="serviceType">Service</label>
+      <select id="serviceType">
+        <option value="">— Select service —</option>
+        <option value="Sunday AM">Sunday AM</option>
+        <option value="Sunday PM">Sunday PM</option>
+        <option value="Wednesday PM">Wednesday PM</option>
+      </select>
+    </div>
+
+    <div class="field">
+      <label for="serviceDate">Date</label>
+      <input type="date" id="serviceDate" />
+    </div>
+
+    <div class="field">
+      <label for="submittedBy">Your Name <span style="color:var(--gray-500);font-weight:400">(optional)</span></label>
+      <input type="text" id="submittedBy" placeholder="Who is taking attendance?" />
+    </div>
+  </div>
+
+  <!-- Members -->
+  <div class="card">
+    <div class="card-title">Member Attendance</div>
+
+    <div class="stats">
+      <div class="stat-pill">
+        <div class="num" id="totalCount">—</div>
+        <div class="lbl">Total</div>
+      </div>
+      <div class="stat-pill present-pill">
+        <div class="num" id="presentCount">0</div>
+        <div class="lbl">Present</div>
+      </div>
+      <div class="stat-pill absent-pill">
+        <div class="num" id="absentCount">0</div>
+        <div class="lbl">Absent</div>
+      </div>
+    </div>
+
+    <div class="search-wrap">
+      <span class="search-icon">🔍</span>
+      <input type="text" id="searchInput" placeholder="Search members…" oninput="filterMembers()" />
+    </div>
+
+    <div class="section-divider"><span>Mark All</span></div>
+    <div style="display:flex;gap:8px;margin-bottom:14px;">
+      <button class="toggle-btn" style="flex:1;padding:8px;" onclick="markAll('Present')">✓ All Present</button>
+      <button class="toggle-btn" style="flex:1;padding:8px;" onclick="markAll('Absent')">✗ All Absent</button>
+      <button class="toggle-btn" style="flex:1;padding:8px;" onclick="markAll('')">Clear All</button>
+    </div>
+
+    <div id="memberList">
+      <div class="loading">Loading members…</div>
+    </div>
+  </div>
+
+  <button class="submit-btn" id="submitBtn" onclick="submitAttendance()">Submit Attendance</button>
+
+  <div class="msg" id="statusMsg"></div>
+
+  <!-- Absence Summary -->
+  <div class="summary-box" id="summaryBox">
+    <h3>📋 Absence Summary</h3>
+    <div id="summaryContent"></div>
+    <button class="copy-btn" onclick="copySummary()">Copy to Clipboard</button>
+  </div>
+
+</div>
+
+<script>
+  const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwM3kgoHlXKEb2x3JbvL7VOBnklWXnQ0GrZ9eVLrFMv7eXE1nzdDi-Jy8zurzT5nDJa/exec";
+
+  let members = [];
+  let attendance = {}; // { "First Last": { status: 'Present'|'Absent'|'', reason: '' } }
+
+  // Set today's date
+  document.getElementById('serviceDate').value = new Date().toISOString().split('T')[0];
+
+  // Load members via JSONP to bypass CORS
+  function loadMembers() {
+    window._membersCallback = function(data) {
+      members = data.map(m => `${m.firstName} ${m.lastName}`).sort();
+      members.forEach(name => { attendance[name] = { status: '', reason: '' }; });
+      document.getElementById('totalCount').textContent = members.length;
+      renderMembers(members);
+      delete window._membersCallback;
+      document.getElementById('jsonpScript') && document.getElementById('jsonpScript').remove();
+    };
+
+    const script = document.createElement('script');
+    script.id = 'jsonpScript';
+    script.src = SCRIPT_URL + '?callback=_membersCallback';
+    script.onerror = function() {
+      document.getElementById('memberList').innerHTML = '<div class="loading" style="color:#991B1B">Failed to load members. Check your connection and Apps Script deployment.</div>';
+    };
+    document.body.appendChild(script);
+
+    // Timeout fallback
+    setTimeout(() => {
+      if (members.length === 0) {
+        document.getElementById('memberList').innerHTML = '<div class="loading" style="color:#991B1B">Failed to load members — request timed out. Please refresh.</div>';
+      }
+    }, 8000);
+  }
+
+  function renderMembers(list) {
+    const container = document.getElementById('memberList');
+    if (list.length === 0) {
+      container.innerHTML = '<div class="loading">No members found.</div>';
+      return;
+    }
+    container.innerHTML = list.map(name => {
+      const att = attendance[name];
+      const barClass = att.status === 'Present' ? 'present' : att.status === 'Absent' ? 'absent' : '';
+      const reasonHtml = att.status === 'Absent' ? `
+        <div class="reason-select">
+          <select onchange="setReason('${name}', this.value)">
+            <option value="">— Reason —</option>
+            <option value="Travel" ${att.reason==='Travel'?'selected':''}>Travel</option>
+            <option value="Illness" ${att.reason==='Illness'?'selected':''}>Illness</option>
+            <option value="Work" ${att.reason==='Work'?'selected':''}>Work</option>
+            <option value="Unknown" ${att.reason==='Unknown'?'selected':''}>Unknown</option>
+            <option value="Other" ${att.reason==='Other'?'selected':''}>Other</option>
+          </select>
+        </div>` : '';
+      return `
+        <div class="attendance-bar ${barClass}" id="bar-${CSS.escape(name)}">
+          <span class="member-name">${name}</span>
+          <div class="toggle-group">
+            <button class="toggle-btn ${att.status==='Present'?'active-present':''}" onclick="setStatus('${name}','Present')">✓</button>
+            <button class="toggle-btn ${att.status==='Absent'?'active-absent':''}" onclick="setStatus('${name}','Absent')">✗</button>
+          </div>
+        </div>
+        ${reasonHtml}
+      `;
+    }).join('');
+    updateCounts();
+  }
+
+  function setStatus(name, status) {
+    if (attendance[name].status === status) {
+      attendance[name] = { status: '', reason: '' };
+    } else {
+      attendance[name] = { status, reason: attendance[name].reason };
+      if (status === 'Present') attendance[name].reason = '';
+    }
+    const search = document.getElementById('searchInput').value.toLowerCase();
+    const filtered = members.filter(m => m.toLowerCase().includes(search));
+    renderMembers(filtered);
+  }
+
+  function setReason(name, reason) {
+    attendance[name].reason = reason;
+  }
+
+  function markAll(status) {
+    members.forEach(name => {
+      attendance[name] = { status, reason: status === 'Absent' ? 'Unknown' : '' };
+    });
+    const search = document.getElementById('searchInput').value.toLowerCase();
+    const filtered = members.filter(m => m.toLowerCase().includes(search));
+    renderMembers(filtered);
+  }
+
+  function filterMembers() {
+    const q = document.getElementById('searchInput').value.toLowerCase();
+    const filtered = members.filter(m => m.toLowerCase().includes(q));
+    renderMembers(filtered);
+  }
+
+  function updateCounts() {
+    const present = Object.values(attendance).filter(a => a.status === 'Present').length;
+    const absent = Object.values(attendance).filter(a => a.status === 'Absent').length;
+    document.getElementById('presentCount').textContent = present;
+    document.getElementById('absentCount').textContent = absent;
+  }
+
+  async function submitAttendance() {
+    const serviceType = document.getElementById('serviceType').value;
+    const serviceDate = document.getElementById('serviceDate').value;
+    const submittedBy = document.getElementById('submittedBy').value.trim();
+
+    if (!serviceType) { showMsg('Please select a service type.', 'error'); return; }
+    if (!serviceDate) { showMsg('Please select a date.', 'error'); return; }
+
+    const marked = Object.entries(attendance).filter(([,v]) => v.status !== '');
+    if (marked.length === 0) { showMsg('Please mark at least one member before submitting.', 'error'); return; }
+
+    const btn = document.getElementById('submitBtn');
+    btn.disabled = true;
+    btn.textContent = 'Submitting…';
+
+    const attendees = members.map(name => ({
+      name,
+      status: attendance[name].status || 'Not Recorded',
+      reason: attendance[name].reason || ''
+    }));
+
+    try {
+      await fetch(SCRIPT_URL, {
+        method: 'POST',
+        mode: 'no-cors',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ date: serviceDate, serviceType, submittedBy, attendees })
+      });
+
+      showMsg('✓ Attendance submitted successfully!', 'success');
+      buildSummary(serviceDate, serviceType);
+      btn.textContent = 'Submit Attendance';
+      btn.disabled = false;
+    } catch (err) {
+      showMsg('Submission failed. Please try again.', 'error');
+      btn.textContent = 'Submit Attendance';
+      btn.disabled = false;
+    }
+  }
+
+  function buildSummary(date, serviceType) {
+    const absentees = Object.entries(attendance)
+      .filter(([, v]) => v.status === 'Absent')
+      .map(([name, v]) => ({ name, reason: v.reason || 'Unknown' }));
+
+    const summaryBox = document.getElementById('summaryBox');
+    const summaryContent = document.getElementById('summaryContent');
+
+    if (absentees.length === 0) {
+      summaryBox.style.display = 'block';
+      summaryContent.innerHTML = '<p style="color:var(--green);font-weight:600">🎉 No absences recorded!</p>';
+      return;
+    }
+
+    // Group by reason
+    const groups = {};
+    absentees.forEach(({ name, reason }) => {
+      if (!groups[reason]) groups[reason] = [];
+      groups[reason].push(name);
+    });
+
+    const formattedDate = new Date(date + 'T12:00:00').toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
+
+    let html = '';
+    Object.entries(groups).forEach(([reason, names]) => {
+      html += `<div class="summary-group">
+        <div class="group-label">${reason}</div>
+        <div class="names">${names.join('; ')}</div>
+      </div>`;
+    });
+
+    summaryBox.style.display = 'block';
+    summaryContent.innerHTML = html;
+
+    // Store plain text for copy
+    let plain = `Absent – ${formattedDate} (${serviceType})\n\n`;
+    Object.entries(groups).forEach(([reason, names]) => {
+      plain += `${reason}: ${names.join('; ')}\n`;
+    });
+    summaryBox.dataset.plain = plain.trim();
+  }
+
+  function copySummary() {
+    const text = document.getElementById('summaryBox').dataset.plain;
+    navigator.clipboard.writeText(text).then(() => {
+      const btn = document.querySelector('.copy-btn');
+      btn.textContent = 'Copied!';
+      setTimeout(() => btn.textContent = 'Copy to Clipboard', 2000);
+    });
+  }
+
+  function showMsg(text, type) {
+    const el = document.getElementById('statusMsg');
+    el.textContent = text;
+    el.className = `msg ${type}`;
+    setTimeout(() => { el.className = 'msg'; }, 5000);
+  }
+
+  loadMembers();
+</script>
+</body>
+</html>
