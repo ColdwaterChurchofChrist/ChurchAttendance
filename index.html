@@ -426,7 +426,7 @@
   // Load members via JSONP to bypass CORS
   function loadMembers() {
     window._membersCallback = function(data) {
-      members = data.map(m => `${m.firstName} ${m.lastName}`).sort();
+      members = data.map(m => `${m.firstName} ${m.lastName}`);
       members.forEach(name => { attendance[name] = { status: '', reason: '' }; });
       document.getElementById('totalCount').textContent = members.length;
       renderMembers(members);
@@ -459,16 +459,18 @@
     container.innerHTML = list.map(name => {
       const att = attendance[name];
       const barClass = att.status === 'Present' ? 'present' : att.status === 'Absent' ? 'absent' : '';
+      const isOther = att.reason && att.reason !== 'Travel' && att.reason !== 'Illness' && att.reason !== 'Work' && att.reason !== 'Unknown' && att.reason !== 'Other' && att.reason !== '';
+      const selectVal = isOther ? 'Other' : (att.reason || 'Unknown');
       const reasonHtml = att.status === 'Absent' ? `
         <div class="reason-select">
           <select onchange="setReason('${name}', this.value)">
-            <option value="">— Reason —</option>
-            <option value="Travel" ${att.reason==='Travel'?'selected':''}>Travel</option>
-            <option value="Illness" ${att.reason==='Illness'?'selected':''}>Illness</option>
-            <option value="Work" ${att.reason==='Work'?'selected':''}>Work</option>
-            <option value="Unknown" ${att.reason==='Unknown'?'selected':''}>Unknown</option>
-            <option value="Other" ${att.reason==='Other'?'selected':''}>Other</option>
+            <option value="Unknown" ${selectVal==='Unknown'?'selected':''}>Unknown</option>
+            <option value="Travel" ${selectVal==='Travel'?'selected':''}>Travel</option>
+            <option value="Illness" ${selectVal==='Illness'?'selected':''}>Illness</option>
+            <option value="Work" ${selectVal==='Work'?'selected':''}>Work</option>
+            <option value="Other" ${selectVal==='Other'?'selected':''}>Other</option>
           </select>
+          ${selectVal === 'Other' ? `<input type="text" placeholder="Enter reason…" value="${isOther ? att.reason : ''}" oninput="setCustomReason('${name}', this.value)" style="margin-top:6px;font-size:0.83rem;padding:7px 10px;" />` : ''}
         </div>` : '';
       return `
         <div class="attendance-bar ${barClass}" id="bar-${CSS.escape(name)}">
@@ -488,7 +490,7 @@
     if (attendance[name].status === status) {
       attendance[name] = { status: '', reason: '' };
     } else {
-      attendance[name] = { status, reason: attendance[name].reason };
+      attendance[name] = { status, reason: status === 'Absent' ? (attendance[name].reason || 'Unknown') : attendance[name].reason };
       if (status === 'Present') attendance[name].reason = '';
     }
     const search = document.getElementById('searchInput').value.toLowerCase();
@@ -497,7 +499,18 @@
   }
 
   function setReason(name, reason) {
-    attendance[name].reason = reason;
+    if (reason === 'Other') {
+      attendance[name].reason = 'Other';
+    } else {
+      attendance[name].reason = reason;
+    }
+    const search = document.getElementById('searchInput').value.toLowerCase();
+    const filtered = members.filter(m => m.toLowerCase().includes(search));
+    renderMembers(filtered);
+  }
+
+  function setCustomReason(name, value) {
+    attendance[name].reason = value;
   }
 
   function markAll(status) {
