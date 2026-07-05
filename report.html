@@ -1,0 +1,520 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+  <meta http-equiv="Pragma" content="no-cache" />
+  <meta http-equiv="Expires" content="0" />
+  <title>Attendance Report – Coldwater Church of Christ</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet"/>
+  <style>
+    :root {
+      --navy: #1B2A4A;
+      --gold: #C9A84C;
+      --gold-light: #F0DFA0;
+      --cream: #FDFAF4;
+      --white: #FFFFFF;
+      --gray-100: #F3F4F6;
+      --gray-300: #D1D5DB;
+      --gray-500: #6B7280;
+      --gray-700: #374151;
+      --green: #166534;
+      --green-bg: #DCFCE7;
+      --red: #991B1B;
+      --red-bg: #FEE2E2;
+      --yellow: #92400E;
+      --yellow-bg: #FEF3C7;
+      --radius: 10px;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--cream);
+      color: var(--gray-700);
+      min-height: 100vh;
+    }
+
+    header {
+      background: var(--navy);
+      color: var(--white);
+      padding: 20px 24px 16px;
+      text-align: center;
+      border-bottom: 4px solid var(--gold);
+    }
+
+    header h1 {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.6rem;
+      color: var(--white);
+    }
+
+    header p {
+      font-size: 0.8rem;
+      color: var(--gold-light);
+      margin-top: 4px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .container {
+      max-width: 700px;
+      margin: 0 auto;
+      padding: 24px 16px 60px;
+    }
+
+    /* PIN Screen */
+    #pinScreen {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 60px 24px;
+    }
+
+    .pin-card {
+      background: var(--white);
+      border-radius: var(--radius);
+      padding: 32px 24px;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.07);
+      width: 100%;
+      max-width: 320px;
+      text-align: center;
+    }
+
+    .pin-card h2 {
+      font-family: 'Playfair Display', serif;
+      color: var(--navy);
+      font-size: 1.3rem;
+      margin-bottom: 8px;
+    }
+
+    .pin-card p {
+      font-size: 0.85rem;
+      color: var(--gray-500);
+      margin-bottom: 20px;
+    }
+
+    .pin-input {
+      width: 100%;
+      padding: 12px;
+      border: 1.5px solid var(--gray-300);
+      border-radius: 8px;
+      font-size: 1.5rem;
+      text-align: center;
+      letter-spacing: 0.3em;
+      font-family: 'Inter', sans-serif;
+      color: var(--navy);
+      margin-bottom: 14px;
+    }
+
+    .pin-input:focus { outline: none; border-color: var(--navy); }
+
+    .pin-btn {
+      width: 100%;
+      padding: 12px;
+      background: var(--navy);
+      color: var(--white);
+      border: none;
+      border-radius: 8px;
+      font-size: 0.95rem;
+      font-weight: 600;
+      font-family: 'Inter', sans-serif;
+      cursor: pointer;
+      border-bottom: 3px solid var(--gold);
+    }
+
+    .pin-btn:hover { background: #253a63; }
+
+    .pin-error {
+      color: var(--red);
+      font-size: 0.82rem;
+      margin-top: 10px;
+      display: none;
+    }
+
+    /* Report Screen */
+    #reportScreen { display: none; }
+
+    .card {
+      background: var(--white);
+      border-radius: var(--radius);
+      padding: 20px;
+      margin-bottom: 16px;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.07);
+    }
+
+    .card-title {
+      font-size: 0.7rem;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--gold);
+      margin-bottom: 14px;
+    }
+
+    .stats {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+
+    .stat-pill {
+      flex: 1;
+      text-align: center;
+      background: var(--gray-100);
+      border-radius: 8px;
+      padding: 10px 4px;
+    }
+
+    .stat-pill .num {
+      font-size: 1.4rem;
+      font-weight: 700;
+      color: var(--navy);
+    }
+
+    .stat-pill .lbl {
+      font-size: 0.68rem;
+      text-transform: uppercase;
+      letter-spacing: 0.07em;
+      color: var(--gray-500);
+    }
+
+    .stat-pill.warn .num { color: var(--yellow); }
+    .stat-pill.danger .num { color: var(--red); }
+
+    /* Filter bar */
+    .filter-bar {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 14px;
+      flex-wrap: wrap;
+    }
+
+    .filter-btn {
+      padding: 6px 14px;
+      border-radius: 20px;
+      border: 1.5px solid var(--gray-300);
+      font-size: 0.78rem;
+      font-weight: 600;
+      cursor: pointer;
+      background: var(--white);
+      color: var(--gray-500);
+      font-family: 'Inter', sans-serif;
+      transition: all 0.15s;
+    }
+
+    .filter-btn.active {
+      background: var(--navy);
+      border-color: var(--navy);
+      color: var(--white);
+    }
+
+    /* Member cards */
+    .member-card {
+      border: 1.5px solid var(--gray-300);
+      border-radius: 8px;
+      padding: 12px 14px;
+      margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+    }
+
+    .member-card.warn {
+      border-color: #FCD34D;
+      background: var(--yellow-bg);
+    }
+
+    .member-card.danger {
+      border-color: #FCA5A5;
+      background: var(--red-bg);
+    }
+
+    .member-info { flex: 1; }
+
+    .member-info .name {
+      font-size: 0.95rem;
+      font-weight: 600;
+      color: var(--navy);
+    }
+
+    .member-info .last-missed {
+      font-size: 0.78rem;
+      color: var(--gray-500);
+      margin-top: 2px;
+    }
+
+    .miss-badge {
+      font-size: 0.78rem;
+      font-weight: 700;
+      padding: 4px 10px;
+      border-radius: 20px;
+      white-space: nowrap;
+    }
+
+    .miss-badge.warn {
+      background: #FCD34D;
+      color: var(--yellow);
+    }
+
+    .miss-badge.danger {
+      background: #FCA5A5;
+      color: var(--red);
+    }
+
+    .loading {
+      text-align: center;
+      color: var(--gray-500);
+      font-size: 0.9rem;
+      padding: 30px 0;
+    }
+
+    .empty {
+      text-align: center;
+      color: var(--green);
+      font-size: 0.9rem;
+      font-weight: 600;
+      padding: 30px 0;
+    }
+
+    .refresh-btn {
+      width: 100%;
+      padding: 12px;
+      background: var(--white);
+      color: var(--navy);
+      border: 1.5px solid var(--navy);
+      border-radius: var(--radius);
+      font-size: 0.9rem;
+      font-weight: 600;
+      font-family: 'Inter', sans-serif;
+      cursor: pointer;
+      margin-bottom: 12px;
+    }
+
+    .refresh-btn:hover { background: var(--gray-100); }
+
+    .last-updated {
+      text-align: center;
+      font-size: 0.75rem;
+      color: var(--gray-500);
+      margin-bottom: 16px;
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <h1>Coldwater Church of Christ</h1>
+  <p>Elder's Attendance Report</p>
+</header>
+
+<div class="container">
+
+  <!-- PIN Screen -->
+  <div id="pinScreen">
+    <div class="pin-card">
+      <h2>Elder Access</h2>
+      <p>Enter your PIN to view the attendance report.</p>
+      <input type="password" class="pin-input" id="pinInput" maxlength="4" placeholder="••••" onkeydown="if(event.key==='Enter') checkPin()" />
+      <button class="pin-btn" onclick="checkPin()">View Report</button>
+      <div class="pin-error" id="pinError">Incorrect PIN. Please try again.</div>
+    </div>
+  </div>
+
+  <!-- Report Screen -->
+  <div id="reportScreen">
+    <button class="refresh-btn" onclick="loadReport()">↻ Refresh Report</button>
+    <div class="last-updated" id="lastUpdated"></div>
+
+    <div class="card">
+      <div class="card-title">Consecutive Sunday AM Absences (2+ in a row)</div>
+
+      <div class="stats">
+        <div class="stat-pill">
+          <div class="num" id="totalMembers">—</div>
+          <div class="lbl">Members</div>
+        </div>
+        <div class="stat-pill warn">
+          <div class="num" id="warnCount">—</div>
+          <div class="lbl">2 in a row</div>
+        </div>
+        <div class="stat-pill danger">
+          <div class="num" id="dangerCount">—</div>
+          <div class="lbl">3+ in a row</div>
+        </div>
+      </div>
+
+      <div class="filter-bar">
+        <button class="filter-btn active" onclick="setFilter('all', this)">All</button>
+        <button class="filter-btn" onclick="setFilter('2', this)">2 in a row</button>
+        <button class="filter-btn" onclick="setFilter('3', this)">3+ in a row</button>
+      </div>
+
+      <div id="reportList">
+        <div class="loading">Loading report…</div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+  const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwM3kgoHlXKEb2x3JbvL7VOBnklWXnQ0GrZ9eVLrFMv7eXE1nzdDi-Jy8zurzT5nDJa/exec";
+  const PIN = "2008";
+
+  var reportData = [];
+  var currentFilter = 'all';
+
+  function checkPin() {
+    var entered = document.getElementById('pinInput').value;
+    if (entered === PIN) {
+      document.getElementById('pinScreen').style.display = 'none';
+      document.getElementById('reportScreen').style.display = 'block';
+      loadReport();
+    } else {
+      document.getElementById('pinError').style.display = 'block';
+      document.getElementById('pinInput').value = '';
+    }
+  }
+
+  function loadReport() {
+    document.getElementById('reportList').innerHTML = '<div class="loading">Loading report…</div>';
+    document.getElementById('lastUpdated').textContent = '';
+
+    window._reportCallback = function(data) {
+      processReport(data);
+      delete window._reportCallback;
+      var s = document.getElementById('reportScript');
+      if (s) s.remove();
+    };
+
+    var script = document.createElement('script');
+    script.id = 'reportScript';
+    script.src = SCRIPT_URL + '?callback=_reportCallback&action=report';
+    script.onerror = function() {
+      document.getElementById('reportList').innerHTML = '<div class="loading" style="color:#991B1B">Failed to load report. Please refresh.</div>';
+    };
+    document.body.appendChild(script);
+
+    setTimeout(function() {
+      if (reportData.length === 0 && document.getElementById('reportList').innerHTML.indexOf('Failed') === -1) {
+        document.getElementById('reportList').innerHTML = '<div class="loading" style="color:#991B1B">Request timed out. Please refresh.</div>';
+      }
+    }, 10000);
+  }
+
+  function processReport(data) {
+    // data is array of attendance rows: [timestamp, date, serviceType, name, status, reason, submittedBy]
+    // Filter to Sunday AM only
+    var sundayAM = data.filter(function(row) {
+      return row[2] === 'Sunday AM';
+    });
+
+    // Get unique sorted dates
+    var dates = [];
+    sundayAM.forEach(function(row) {
+      if (dates.indexOf(row[1]) === -1) dates.push(row[1]);
+    });
+    dates.sort();
+
+    // Get unique members
+    var members = [];
+    sundayAM.forEach(function(row) {
+      if (members.indexOf(row[3]) === -1) members.push(row[3]);
+    });
+
+    // Build attendance map: member -> { date -> status }
+    var attendanceMap = {};
+    members.forEach(function(m) { attendanceMap[m] = {}; });
+    sundayAM.forEach(function(row) {
+      var name = row[3], date = row[1], status = row[4];
+      attendanceMap[name][date] = status;
+    });
+
+    // Calculate consecutive absences for each member
+    reportData = [];
+    members.forEach(function(name) {
+      var consecutive = 0;
+      var maxConsecutive = 0;
+      var lastMissed = '';
+
+      dates.forEach(function(date) {
+        var status = attendanceMap[name][date] || 'Present';
+        if (status === 'Absent') {
+          consecutive++;
+          lastMissed = date;
+          if (consecutive > maxConsecutive) maxConsecutive = consecutive;
+        } else {
+          consecutive = 0;
+        }
+      });
+
+      // Only include if currently on a streak of 2+
+      if (consecutive >= 2) {
+        reportData.push({
+          name: name,
+          consecutive: consecutive,
+          lastMissed: lastMissed
+        });
+      }
+    });
+
+    // Sort by consecutive descending
+    reportData.sort(function(a, b) { return b.consecutive - a.consecutive; });
+
+    var warnCount = reportData.filter(function(r) { return r.consecutive === 2; }).length;
+    var dangerCount = reportData.filter(function(r) { return r.consecutive >= 3; }).length;
+
+    document.getElementById('totalMembers').textContent = members.length;
+    document.getElementById('warnCount').textContent = warnCount;
+    document.getElementById('dangerCount').textContent = dangerCount;
+    document.getElementById('lastUpdated').textContent = 'Last updated: ' + new Date().toLocaleTimeString();
+
+    renderReport();
+  }
+
+  function setFilter(filter, btn) {
+    currentFilter = filter;
+    document.querySelectorAll('.filter-btn').forEach(function(b) { b.classList.remove('active'); });
+    btn.classList.add('active');
+    renderReport();
+  }
+
+  function renderReport() {
+    var list = reportData;
+    if (currentFilter === '2') {
+      list = reportData.filter(function(r) { return r.consecutive === 2; });
+    } else if (currentFilter === '3') {
+      list = reportData.filter(function(r) { return r.consecutive >= 3; });
+    }
+
+    if (list.length === 0) {
+      document.getElementById('reportList').innerHTML = '<div class="empty">🎉 No members with 2+ consecutive absences!</div>';
+      return;
+    }
+
+    var html = '';
+    list.forEach(function(r) {
+      var badgeClass = r.consecutive >= 3 ? 'danger' : 'warn';
+      var cardClass = r.consecutive >= 3 ? 'danger' : 'warn';
+      var missText = r.consecutive + ' in a row';
+      var lastDate = new Date(r.lastMissed + 'T12:00:00').toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
+
+      html += '<div class="member-card ' + cardClass + '">' +
+        '<div class="member-info">' +
+        '<div class="name">' + r.name + '</div>' +
+        '<div class="last-missed">Last missed: ' + lastDate + '</div>' +
+        '</div>' +
+        '<span class="miss-badge ' + badgeClass + '">' + missText + '</span>' +
+        '</div>';
+    });
+
+    document.getElementById('reportList').innerHTML = html;
+  }
+</script>
+</body>
+</html>
