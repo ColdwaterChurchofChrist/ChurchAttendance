@@ -114,9 +114,7 @@
       position: relative;
       margin-bottom: 12px;
     }
-    .search-wrap input {
-      padding-left: 36px;
-    }
+    .search-wrap input { padding-left: 36px; }
     .search-icon {
       position: absolute;
       left: 10px;
@@ -127,7 +125,11 @@
       pointer-events: none;
     }
 
-    /* Attendance toggle bar */
+    /* Member row */
+    .member-row {
+      margin-bottom: 8px;
+    }
+
     .attendance-bar {
       display: flex;
       align-items: center;
@@ -135,9 +137,8 @@
       padding: 10px 14px;
       border-radius: 8px;
       border: 1.5px solid var(--gray-300);
-      margin-bottom: 8px;
       background: var(--white);
-      transition: border-color 0.15s;
+      transition: all 0.2s;
     }
 
     .attendance-bar.present {
@@ -157,43 +158,85 @@
       flex: 1;
     }
 
-    .toggle-group {
+    /* Toggle Switch */
+    .switch-wrap {
       display: flex;
-      gap: 6px;
+      align-items: center;
+      gap: 8px;
     }
 
-    .toggle-btn {
-      padding: 4px 12px;
-      border-radius: 20px;
-      border: 1.5px solid var(--gray-300);
-      font-size: 0.78rem;
+    .switch-label {
+      font-size: 0.75rem;
       font-weight: 600;
+      min-width: 44px;
+      text-align: right;
+    }
+
+    .switch-label.present { color: var(--green); }
+    .switch-label.absent { color: var(--red); }
+
+    .switch {
+      position: relative;
+      width: 48px;
+      height: 26px;
+      flex-shrink: 0;
+    }
+
+    .switch input {
+      opacity: 0;
+      width: 0;
+      height: 0;
+      position: absolute;
+    }
+
+    .slider {
+      position: absolute;
       cursor: pointer;
-      background: var(--white);
-      color: var(--gray-500);
-      transition: all 0.15s;
-    }
-
-    .toggle-btn.active-present {
+      top: 0; left: 0; right: 0; bottom: 0;
       background: var(--green);
-      border-color: var(--green);
-      color: var(--white);
+      border-radius: 26px;
+      transition: 0.2s;
     }
 
-    .toggle-btn.active-absent {
+    .slider:before {
+      position: absolute;
+      content: "";
+      height: 20px;
+      width: 20px;
+      left: 3px;
+      bottom: 3px;
+      background: white;
+      border-radius: 50%;
+      transition: 0.2s;
+    }
+
+    /* Checked = absent (toggled right) */
+    input:checked + .slider {
       background: var(--red);
-      border-color: var(--red);
-      color: var(--white);
     }
 
-    .reason-select {
-      margin-top: 6px;
-      margin-bottom: 4px;
+    input:checked + .slider:before {
+      transform: translateX(22px);
     }
 
-    .reason-select select {
+    /* Reason dropdown */
+    .reason-wrap {
+      padding: 6px 14px 8px;
+      display: flex;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .reason-wrap select {
       font-size: 0.83rem;
-      padding: 7px 10px;
+      padding: 6px 10px;
+      flex: 1;
+    }
+
+    .reason-wrap input[type="text"] {
+      font-size: 0.83rem;
+      padding: 6px 10px;
+      flex: 1;
     }
 
     /* Stats bar */
@@ -226,6 +269,50 @@
 
     .stat-pill.present-pill .num { color: var(--green); }
     .stat-pill.absent-pill .num { color: var(--red); }
+
+    /* Mark all buttons */
+    .mark-all-wrap {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 14px;
+    }
+
+    .mark-btn {
+      flex: 1;
+      padding: 8px;
+      border-radius: 8px;
+      border: 1.5px solid var(--gray-300);
+      font-size: 0.78rem;
+      font-weight: 600;
+      cursor: pointer;
+      background: var(--white);
+      color: var(--gray-500);
+      font-family: 'Inter', sans-serif;
+      transition: all 0.15s;
+    }
+
+    .mark-btn:hover { border-color: var(--navy); color: var(--navy); }
+
+    .section-divider {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin: 6px 0 12px;
+    }
+    .section-divider span {
+      font-size: 0.7rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--gray-500);
+      white-space: nowrap;
+    }
+    .section-divider::before, .section-divider::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: var(--gray-300);
+    }
 
     /* Submit */
     .submit-btn {
@@ -311,27 +398,6 @@
     }
 
     .copy-btn:hover { background: #253a63; }
-
-    .section-divider {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      margin: 6px 0 12px;
-    }
-    .section-divider span {
-      font-size: 0.7rem;
-      font-weight: 600;
-      text-transform: uppercase;
-      letter-spacing: 0.08em;
-      color: var(--gray-500);
-      white-space: nowrap;
-    }
-    .section-divider::before, .section-divider::after {
-      content: '';
-      flex: 1;
-      height: 1px;
-      background: var(--gray-300);
-    }
   </style>
 </head>
 <body>
@@ -393,10 +459,9 @@
     </div>
 
     <div class="section-divider"><span>Mark All</span></div>
-    <div style="display:flex;gap:8px;margin-bottom:14px;">
-      <button class="toggle-btn" style="flex:1;padding:8px;" onclick="markAll('Present')">✓ All Present</button>
-      <button class="toggle-btn" style="flex:1;padding:8px;" onclick="markAll('Absent')">✗ All Absent</button>
-      <button class="toggle-btn" style="flex:1;padding:8px;" onclick="markAll('')">Clear All</button>
+    <div class="mark-all-wrap">
+      <button class="mark-btn" onclick="markAll('Present')">✓ All Present</button>
+      <button class="mark-btn" onclick="markAll('Absent')">✗ All Absent</button>
     </div>
 
     <div id="memberList">
@@ -405,7 +470,6 @@
   </div>
 
   <button class="submit-btn" id="submitBtn" onclick="submitAttendance()">Submit Attendance</button>
-
   <div class="msg" id="statusMsg"></div>
 
   <!-- Absence Summary -->
@@ -421,32 +485,30 @@
   const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwM3kgoHlXKEb2x3JbvL7VOBnklWXnQ0GrZ9eVLrFMv7eXE1nzdDi-Jy8zurzT5nDJa/exec";
 
   let members = [];
-  let attendance = {}; // { "First Last": { status: 'Present'|'Absent'|'', reason: '' } }
+  let attendance = {};
 
-  // Set today's date
   document.getElementById('serviceDate').value = new Date().toISOString().split('T')[0];
 
-  // Load members via JSONP to bypass CORS
   function loadMembers() {
     window._membersCallback = function(data) {
-      members = data.map(m => `${m.firstName} ${m.lastName}`);
-      members.forEach(name => { attendance[name] = { status: '', reason: '' }; });
+      members = data.map(m => m.firstName + ' ' + m.lastName);
+      members.forEach(name => { attendance[name] = { status: 'Present', reason: '' }; });
       document.getElementById('totalCount').textContent = members.length;
       renderMembers(members);
       delete window._membersCallback;
-      document.getElementById('jsonpScript') && document.getElementById('jsonpScript').remove();
+      var s = document.getElementById('jsonpScript');
+      if (s) s.remove();
     };
 
-    const script = document.createElement('script');
+    var script = document.createElement('script');
     script.id = 'jsonpScript';
     script.src = SCRIPT_URL + '?callback=_membersCallback';
     script.onerror = function() {
-      document.getElementById('memberList').innerHTML = '<div class="loading" style="color:#991B1B">Failed to load members. Check your connection and Apps Script deployment.</div>';
+      document.getElementById('memberList').innerHTML = '<div class="loading" style="color:#991B1B">Failed to load members. Check your connection.</div>';
     };
     document.body.appendChild(script);
 
-    // Timeout fallback
-    setTimeout(() => {
+    setTimeout(function() {
       if (members.length === 0) {
         document.getElementById('memberList').innerHTML = '<div class="loading" style="color:#991B1B">Failed to load members — request timed out. Please refresh.</div>';
       }
@@ -454,62 +516,72 @@
   }
 
   function renderMembers(list) {
-    const container = document.getElementById('memberList');
+    var container = document.getElementById('memberList');
     if (list.length === 0) {
       container.innerHTML = '<div class="loading">No members found.</div>';
       return;
     }
-    container.innerHTML = list.map(name => {
-      const att = attendance[name];
-      const barClass = att.status === 'Present' ? 'present' : att.status === 'Absent' ? 'absent' : '';
-      const isOther = att.reason && att.reason !== 'Travel' && att.reason !== 'Illness' && att.reason !== 'Work' && att.reason !== 'Unknown' && att.reason !== 'Other' && att.reason !== '';
-      const selectVal = isOther ? 'Other' : (att.reason || 'Unknown');
-      const reasonHtml = att.status === 'Absent' ? `
-        <div class="reason-select">
-          <select onchange="setReason('${name}', this.value)">
-            <option value="Unknown" ${selectVal==='Unknown'?'selected':''}>Unknown</option>
-            <option value="Travel" ${selectVal==='Travel'?'selected':''}>Travel</option>
-            <option value="Illness" ${selectVal==='Illness'?'selected':''}>Illness</option>
-            <option value="Work" ${selectVal==='Work'?'selected':''}>Work</option>
-            <option value="Other" ${selectVal==='Other'?'selected':''}>Other</option>
-          </select>
-          ${selectVal === 'Other' ? `<input type="text" placeholder="Enter reason…" value="${isOther ? att.reason : ''}" oninput="setCustomReason('${name}', this.value)" style="margin-top:6px;font-size:0.83rem;padding:7px 10px;" />` : ''}
-        </div>` : '';
-      return `
-        <div class="attendance-bar ${barClass}" id="bar-${CSS.escape(name)}">
-          <span class="member-name">${name}</span>
-          <div class="toggle-group">
-            <button class="toggle-btn ${att.status==='Present'?'active-present':''}" onclick="setStatus('${name}','Present')">✓</button>
-            <button class="toggle-btn ${att.status==='Absent'?'active-absent':''}" onclick="setStatus('${name}','Absent')">✗</button>
-          </div>
-        </div>
-        ${reasonHtml}
-      `;
-    }).join('');
+
+    var html = '';
+    list.forEach(function(name) {
+      var att = attendance[name];
+      var isAbsent = att.status === 'Absent';
+      var barClass = isAbsent ? 'absent' : 'present';
+      var labelClass = isAbsent ? 'absent' : 'present';
+      var labelText = isAbsent ? 'Absent' : 'Present';
+      var safeId = name.replace(/\s+/g, '-').replace(/[^a-zA-Z0-9-]/g, '');
+
+      var reasonHtml = '';
+      if (isAbsent) {
+        var isOther = att.reason && ['Travel','Illness','Work','Unknown',''].indexOf(att.reason) === -1;
+        var selVal = isOther ? 'Other' : att.reason;
+        reasonHtml = '<div class="reason-wrap">' +
+          '<select onchange="setReason(\'' + name + '\', this.value)">' +
+          '<option value="" ' + (selVal===''?'selected':'') + '>— Reason (optional) —</option>' +
+          '<option value="Travel" ' + (selVal==='Travel'?'selected':'') + '>Travel</option>' +
+          '<option value="Illness" ' + (selVal==='Illness'?'selected':'') + '>Illness</option>' +
+          '<option value="Work" ' + (selVal==='Work'?'selected':'') + '>Work</option>' +
+          '<option value="Unknown" ' + (selVal==='Unknown'?'selected':'') + '>Unknown</option>' +
+          '<option value="Other" ' + (selVal==='Other'?'selected':'') + '>Other</option>' +
+          '</select>' +
+          (isOther ? '<input type="text" placeholder="Enter reason…" value="' + att.reason + '" oninput="setCustomReason(\'' + name + '\', this.value)" />' : '') +
+          '</div>';
+      }
+
+      html += '<div class="member-row">' +
+        '<div class="attendance-bar ' + barClass + '">' +
+        '<span class="member-name">' + name + '</span>' +
+        '<div class="switch-wrap">' +
+        '<span class="switch-label ' + labelClass + '">' + labelText + '</span>' +
+        '<label class="switch">' +
+        '<input type="checkbox" ' + (isAbsent ? 'checked' : '') + ' onchange="toggleStatus(\'' + name + '\', this.checked)" />' +
+        '<span class="slider"></span>' +
+        '</label>' +
+        '</div>' +
+        '</div>' +
+        reasonHtml +
+        '</div>';
+    });
+
+    container.innerHTML = html;
     updateCounts();
   }
 
-  function setStatus(name, status) {
-    if (attendance[name].status === status) {
-      attendance[name] = { status: '', reason: '' };
-    } else {
-      attendance[name] = { status, reason: status === 'Absent' ? (attendance[name].reason || 'Unknown') : attendance[name].reason };
-      if (status === 'Present') attendance[name].reason = '';
-    }
-    const search = document.getElementById('searchInput').value.toLowerCase();
-    const filtered = members.filter(m => m.toLowerCase().includes(search));
+  function toggleStatus(name, isChecked) {
+    attendance[name].status = isChecked ? 'Absent' : 'Present';
+    if (!isChecked) attendance[name].reason = '';
+    var search = document.getElementById('searchInput').value.toLowerCase();
+    var filtered = members.filter(function(m) { return m.toLowerCase().indexOf(search) !== -1; });
     renderMembers(filtered);
   }
 
   function setReason(name, reason) {
-    if (reason === 'Other') {
-      attendance[name].reason = 'Other';
-    } else {
-      attendance[name].reason = reason;
+    attendance[name].reason = reason;
+    if (reason !== 'Other') {
+      var search = document.getElementById('searchInput').value.toLowerCase();
+      var filtered = members.filter(function(m) { return m.toLowerCase().indexOf(search) !== -1; });
+      renderMembers(filtered);
     }
-    const search = document.getElementById('searchInput').value.toLowerCase();
-    const filtered = members.filter(m => m.toLowerCase().includes(search));
-    renderMembers(filtered);
   }
 
   function setCustomReason(name, value) {
@@ -517,123 +589,119 @@
   }
 
   function markAll(status) {
-    members.forEach(name => {
-      attendance[name] = { status, reason: status === 'Absent' ? 'Unknown' : '' };
+    members.forEach(function(name) {
+      attendance[name] = { status: status, reason: '' };
     });
-    const search = document.getElementById('searchInput').value.toLowerCase();
-    const filtered = members.filter(m => m.toLowerCase().includes(search));
+    var search = document.getElementById('searchInput').value.toLowerCase();
+    var filtered = members.filter(function(m) { return m.toLowerCase().indexOf(search) !== -1; });
     renderMembers(filtered);
   }
 
   function filterMembers() {
-    const q = document.getElementById('searchInput').value.toLowerCase();
-    const filtered = members.filter(m => m.toLowerCase().includes(q));
+    var q = document.getElementById('searchInput').value.toLowerCase();
+    var filtered = members.filter(function(m) { return m.toLowerCase().indexOf(q) !== -1; });
     renderMembers(filtered);
   }
 
   function updateCounts() {
-    const present = Object.values(attendance).filter(a => a.status === 'Present').length;
-    const absent = Object.values(attendance).filter(a => a.status === 'Absent').length;
+    var present = 0, absent = 0;
+    Object.values(attendance).forEach(function(a) {
+      if (a.status === 'Present') present++;
+      else if (a.status === 'Absent') absent++;
+    });
     document.getElementById('presentCount').textContent = present;
     document.getElementById('absentCount').textContent = absent;
   }
 
   async function submitAttendance() {
-    const serviceType = document.getElementById('serviceType').value;
-    const serviceDate = document.getElementById('serviceDate').value;
-    const submittedBy = document.getElementById('submittedBy').value.trim();
+    var serviceType = document.getElementById('serviceType').value;
+    var serviceDate = document.getElementById('serviceDate').value;
+    var submittedBy = document.getElementById('submittedBy').value.trim();
 
     if (!serviceType) { showMsg('Please select a service type.', 'error'); return; }
     if (!serviceDate) { showMsg('Please select a date.', 'error'); return; }
 
-    const marked = Object.entries(attendance).filter(([,v]) => v.status !== '');
-    if (marked.length === 0) { showMsg('Please mark at least one member before submitting.', 'error'); return; }
-
-    const btn = document.getElementById('submitBtn');
+    var btn = document.getElementById('submitBtn');
     btn.disabled = true;
     btn.textContent = 'Submitting…';
 
-    const attendees = members.map(name => ({
-      name,
-      status: attendance[name].status || 'Not Recorded',
-      reason: attendance[name].reason || ''
-    }));
+    var attendees = members.map(function(name) {
+      return { name: name, status: attendance[name].status, reason: attendance[name].reason || '' };
+    });
 
     try {
       await fetch(SCRIPT_URL, {
         method: 'POST',
         mode: 'no-cors',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ date: serviceDate, serviceType, submittedBy, attendees })
+        body: JSON.stringify({ date: serviceDate, serviceType: serviceType, submittedBy: submittedBy, attendees: attendees })
       });
 
       showMsg('✓ Attendance submitted successfully!', 'success');
       buildSummary(serviceDate, serviceType);
-      btn.textContent = 'Submit Attendance';
-      btn.disabled = false;
     } catch (err) {
       showMsg('Submission failed. Please try again.', 'error');
-      btn.textContent = 'Submit Attendance';
-      btn.disabled = false;
     }
+
+    btn.textContent = 'Submit Attendance';
+    btn.disabled = false;
   }
 
   function buildSummary(date, serviceType) {
-    const absentees = Object.entries(attendance)
-      .filter(([, v]) => v.status === 'Absent')
-      .map(([name, v]) => ({ name, reason: v.reason || 'Unknown' }));
+    var absentees = [];
+    Object.entries(attendance).forEach(function(entry) {
+      if (entry[1].status === 'Absent') {
+        absentees.push({ name: entry[0], reason: entry[1].reason || 'No reason given' });
+      }
+    });
 
-    const summaryBox = document.getElementById('summaryBox');
-    const summaryContent = document.getElementById('summaryContent');
+    var summaryBox = document.getElementById('summaryBox');
+    var summaryContent = document.getElementById('summaryContent');
 
     if (absentees.length === 0) {
       summaryBox.style.display = 'block';
       summaryContent.innerHTML = '<p style="color:var(--green);font-weight:600">🎉 No absences recorded!</p>';
+      summaryBox.dataset.plain = '';
       return;
     }
 
-    // Group by reason
-    const groups = {};
-    absentees.forEach(({ name, reason }) => {
-      if (!groups[reason]) groups[reason] = [];
-      groups[reason].push(name);
+    var groups = {};
+    absentees.forEach(function(a) {
+      var r = a.reason || 'No reason given';
+      if (!groups[r]) groups[r] = [];
+      groups[r].push(a.name);
     });
 
-    const formattedDate = new Date(date + 'T12:00:00').toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
+    var formattedDate = new Date(date + 'T12:00:00').toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
 
-    let html = '';
-    Object.entries(groups).forEach(([reason, names]) => {
-      html += `<div class="summary-group">
-        <div class="group-label">${reason}</div>
-        <div class="names">${names.join('; ')}</div>
-      </div>`;
+    var html = '';
+    var plain = 'Absent – ' + formattedDate + ' (' + serviceType + ')\n\n';
+
+    Object.entries(groups).forEach(function(entry) {
+      var reason = entry[0], names = entry[1];
+      html += '<div class="summary-group"><div class="group-label">' + reason + '</div><div class="names">' + names.join('; ') + '</div></div>';
+      plain += reason + ': ' + names.join('; ') + '\n';
     });
 
     summaryBox.style.display = 'block';
     summaryContent.innerHTML = html;
-
-    // Store plain text for copy
-    let plain = `Absent – ${formattedDate} (${serviceType})\n\n`;
-    Object.entries(groups).forEach(([reason, names]) => {
-      plain += `${reason}: ${names.join('; ')}\n`;
-    });
     summaryBox.dataset.plain = plain.trim();
   }
 
   function copySummary() {
-    const text = document.getElementById('summaryBox').dataset.plain;
-    navigator.clipboard.writeText(text).then(() => {
-      const btn = document.querySelector('.copy-btn');
+    var text = document.getElementById('summaryBox').dataset.plain;
+    navigator.clipboard.writeText(text).then(function() {
+      var btn = document.querySelector('.copy-btn');
       btn.textContent = 'Copied!';
-      setTimeout(() => btn.textContent = 'Copy to Clipboard', 2000);
+      setTimeout(function() { btn.textContent = 'Copy to Clipboard'; }, 2000);
     });
   }
 
   function showMsg(text, type) {
-    const el = document.getElementById('statusMsg');
+    var el = document.getElementById('statusMsg');
     el.textContent = text;
-    el.className = `msg ${type}`;
-    setTimeout(() => { el.className = 'msg'; }, 5000);
+    el.className = 'msg ' + type;
+    setTimeout(function() { el.className = 'msg'; }, 5000);
   }
 
   loadMembers();
