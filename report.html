@@ -509,22 +509,31 @@
 
   function formatDate(dateStr) {
     if (!dateStr) return 'Unknown';
+    // If it's already a Date object
+    if (dateStr instanceof Date) {
+      return dateStr.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
+    }
+    var s = dateStr.toString().trim();
     var d;
-    // Handle YYYY-MM-DD
-    if (dateStr.toString().indexOf('-') !== -1) {
-      var parts = dateStr.toString().split('-');
-      d = new Date(parts[0], parts[1] - 1, parts[2]);
+    // YYYY-MM-DD
+    if (/^\d{4}-\d{2}-\d{2}/.test(s)) {
+      var parts = s.substring(0, 10).split('-');
+      d = new Date(parseInt(parts[0]), parseInt(parts[1]) - 1, parseInt(parts[2]));
     }
-    // Handle M/D/YYYY or Date object from Google Sheets
-    else if (dateStr.toString().indexOf('/') !== -1) {
-      var parts = dateStr.toString().split('/');
-      d = new Date(parts[2], parts[0] - 1, parts[1]);
+    // M/D/YYYY
+    else if (s.indexOf('/') !== -1) {
+      var parts = s.split('/');
+      d = new Date(parseInt(parts[2]), parseInt(parts[0]) - 1, parseInt(parts[1]));
     }
-    // Handle Google Sheets Date serial or object
+    // Timestamp string like "2026-03-07T..."
+    else if (s.indexOf('T') !== -1) {
+      var parts = s.split('T')[0].split('-');
+      d = new Date(parseInt(parts[0]), parseInt(parts[1]) - 1, parseInt(parts[2]));
+    }
     else {
-      d = new Date(dateStr);
+      d = new Date(s);
     }
-    if (isNaN(d.getTime())) return dateStr.toString();
+    if (!d || isNaN(d.getTime())) return s;
     return d.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
   }
 
