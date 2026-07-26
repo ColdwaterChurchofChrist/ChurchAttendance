@@ -429,54 +429,63 @@
   }
 
   function processReport(data) {
-    // data is array of attendance rows: [timestamp, date, serviceType, name, status, reason, submittedBy]
-    // Filter to Sunday AM only
-    var sundayAM = data.filter(function(row) {
-      return row[2] === 'Sunday AM';
+    // Filter to Sunday services only (AM or PM)
+    var sundayData = data.filter(function(row) {
+      return row[2] === 'Sunday AM' || row[2] === 'Sunday PM';
     });
 
-    // Get unique sorted dates
-    var dates = [];
-    sundayAM.forEach(function(row) {
-      if (dates.indexOf(row[1]) === -1) dates.push(row[1]);
+    // Get unique Sunday AM dates (used as the "week" identifier)
+    var sundayAMDates = [];
+    data.filter(function(row) { return row[2] === 'Sunday AM'; }).forEach(function(row) {
+      if (sundayAMDates.indexOf(row[1]) === -1) sundayAMDates.push(row[1]);
     });
-    dates.sort();
+    sundayAMDates.sort();
 
-    // Use canonical member list from Member List tab
+    // Build a map of all Sunday dates to their AM date (same day)
+    // For each week, if a member attended AM or PM, count as Present
     var members = canonicalMembers.length > 0 ? canonicalMembers : [];
     if (members.length === 0) {
-      sundayAM.forEach(function(row) {
+      sundayData.forEach(function(row) {
         if (members.indexOf(row[3]) === -1) members.push(row[3]);
       });
     }
 
-    // Build attendance map: member -> { date -> status }
+    // Build weekly attendance map: member -> { amDate -> 'Present'|'Absent' }
     var attendanceMap = {};
     members.forEach(function(m) { attendanceMap[m] = {}; });
-    sundayAM.forEach(function(row) {
-      var name = row[3], date = row[1], status = row[4];
-      attendanceMap[name][date] = status;
+
+    sundayData.forEach(function(row) {
+      var name = row[3];
+      var date = row[1];
+      var status = row[4];
+      if (!attendanceMap[name]) return;
+      // If they attended any Sunday service on this date, mark Present
+      if (!attendanceMap[name][date] || status === 'Present') {
+        attendanceMap[name][date] = status;
+      }
     });
 
-    // Calculate consecutive absences for each member
+    // For each week (AM date), check if member attended AM or PM
+    // Calculate consecutive absences
     reportData = [];
     members.forEach(function(name) {
       var consecutive = 0;
-      var maxConsecutive = 0;
       var lastMissed = '';
 
-      dates.forEach(function(date) {
-        var status = attendanceMap[name][date] || 'Present';
-        if (status === 'Absent') {
+      sundayAMDates.forEach(function(amDate) {
+        // Check AM attendance on this date
+        var amStatus = attendanceMap[name][amDate] || 'Absent';
+        // Count as present if attended either service
+        var weekStatus = amStatus === 'Present' ? 'Present' : 'Absent';
+
+        if (weekStatus === 'Absent') {
           consecutive++;
-          lastMissed = date;
-          if (consecutive > maxConsecutive) maxConsecutive = consecutive;
+          lastMissed = amDate;
         } else {
           consecutive = 0;
         }
       });
 
-      // Only include if currently on a streak of 2+
       if (consecutive >= 2) {
         reportData.push({
           name: name,
@@ -486,7 +495,6 @@
       }
     });
 
-    // Sort by consecutive descending
     reportData.sort(function(a, b) { return b.consecutive - a.consecutive; });
 
     var warnCount = reportData.filter(function(r) { return r.consecutive === 2; }).length;
