@@ -381,22 +381,43 @@
     }
   }
 
+  var canonicalMembers = [];
+
   function loadReport() {
     document.getElementById('reportList').innerHTML = '<div class="loading">Loading report…</div>';
     document.getElementById('lastUpdated').textContent = '';
+    canonicalMembers = [];
+    reportData = [];
 
-    window._reportCallback = function(data) {
-      processReport(data);
-      delete window._reportCallback;
-      var s = document.getElementById('reportScript');
+    // Step 1: Load member list first
+    window._membersCallback = function(data) {
+      canonicalMembers = data.map(function(m) { return m.firstName + ' ' + m.lastName; });
+      delete window._membersCallback;
+      var s = document.getElementById('membersScript');
       if (s) s.remove();
+
+      // Step 2: Load attendance data
+      window._reportCallback = function(attData) {
+        processReport(attData);
+        delete window._reportCallback;
+        var s2 = document.getElementById('reportScript');
+        if (s2) s2.remove();
+      };
+
+      var script2 = document.createElement('script');
+      script2.id = 'reportScript';
+      script2.src = SCRIPT_URL + '?callback=_reportCallback&action=report';
+      script2.onerror = function() {
+        document.getElementById('reportList').innerHTML = '<div class="loading" style="color:#991B1B">Failed to load report. Please refresh.</div>';
+      };
+      document.body.appendChild(script2);
     };
 
     var script = document.createElement('script');
-    script.id = 'reportScript';
-    script.src = SCRIPT_URL + '?callback=_reportCallback&action=report';
+    script.id = 'membersScript';
+    script.src = SCRIPT_URL + '?callback=_membersCallback';
     script.onerror = function() {
-      document.getElementById('reportList').innerHTML = '<div class="loading" style="color:#991B1B">Failed to load report. Please refresh.</div>';
+      document.getElementById('reportList').innerHTML = '<div class="loading" style="color:#991B1B">Failed to load members. Please refresh.</div>';
     };
     document.body.appendChild(script);
 
@@ -404,7 +425,7 @@
       if (reportData.length === 0 && document.getElementById('reportList').innerHTML.indexOf('Failed') === -1) {
         document.getElementById('reportList').innerHTML = '<div class="loading" style="color:#991B1B">Request timed out. Please refresh.</div>';
       }
-    }, 10000);
+    }, 15000);
   }
 
   function processReport(data) {
@@ -421,11 +442,13 @@
     });
     dates.sort();
 
-    // Get unique members
-    var members = [];
-    sundayAM.forEach(function(row) {
-      if (members.indexOf(row[3]) === -1) members.push(row[3]);
-    });
+    // Use canonical member list from Member List tab
+    var members = canonicalMembers.length > 0 ? canonicalMembers : [];
+    if (members.length === 0) {
+      sundayAM.forEach(function(row) {
+        if (members.indexOf(row[3]) === -1) members.push(row[3]);
+      });
+    }
 
     // Build attendance map: member -> { date -> status }
     var attendanceMap = {};
@@ -484,6 +507,27 @@
     renderReport();
   }
 
+  function formatDate(dateStr) {
+    if (!dateStr) return 'Unknown';
+    var d;
+    // Handle YYYY-MM-DD
+    if (dateStr.toString().indexOf('-') !== -1) {
+      var parts = dateStr.toString().split('-');
+      d = new Date(parts[0], parts[1] - 1, parts[2]);
+    }
+    // Handle M/D/YYYY or Date object from Google Sheets
+    else if (dateStr.toString().indexOf('/') !== -1) {
+      var parts = dateStr.toString().split('/');
+      d = new Date(parts[2], parts[0] - 1, parts[1]);
+    }
+    // Handle Google Sheets Date serial or object
+    else {
+      d = new Date(dateStr);
+    }
+    if (isNaN(d.getTime())) return dateStr.toString();
+    return d.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
+  }
+
   function renderReport() {
     var list = reportData;
     if (currentFilter === '2') {
@@ -502,7 +546,7 @@
       var badgeClass = r.consecutive >= 3 ? 'danger' : 'warn';
       var cardClass = r.consecutive >= 3 ? 'danger' : 'warn';
       var missText = r.consecutive + ' in a row';
-      var lastDate = new Date(r.lastMissed + 'T12:00:00').toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
+      var lastDate = formatDate(r.lastMissed);
 
       html += '<div class="member-card ' + cardClass + '">' +
         '<div class="member-info">' +
