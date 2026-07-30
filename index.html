@@ -432,6 +432,17 @@
       <label for="submittedBy">Your Name <span style="color:var(--gray-500);font-weight:400">(optional)</span></label>
       <input type="text" id="submittedBy" placeholder="Who is taking attendance?" />
     </div>
+
+    <div class="field" style="display:flex;align-items:center;justify-content:space-between;padding:10px 12px;border:1.5px solid var(--gray-300);border-radius:8px;margin-top:14px;">
+      <div>
+        <div style="font-size:0.85rem;font-weight:500;color:var(--navy);">Send absence email</div>
+        <div style="font-size:0.75rem;color:var(--gray-500);">Uncheck when entering past attendance</div>
+      </div>
+      <label class="switch" style="margin-left:12px;">
+        <input type="checkbox" id="sendEmail" checked />
+        <span class="slider"></span>
+      </label>
+    </div>
   </div>
 
   <!-- Members -->
@@ -617,6 +628,7 @@
     var serviceType = document.getElementById('serviceType').value;
     var serviceDate = document.getElementById('serviceDate').value;
     var submittedBy = document.getElementById('submittedBy').value.trim();
+    var sendEmail = document.getElementById('sendEmail').checked;
 
     if (!serviceType) { showMsg('Please select a service type.', 'error'); return; }
     if (!serviceDate) { showMsg('Please select a date.', 'error'); return; }
@@ -634,7 +646,7 @@
         method: 'POST',
         mode: 'no-cors',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ date: serviceDate, serviceType: serviceType, submittedBy: submittedBy, attendees: attendees })
+        body: JSON.stringify({ date: serviceDate, serviceType: serviceType, submittedBy: submittedBy, attendees: attendees, sendEmail: sendEmail })
       });
 
       showMsg('✓ Attendance submitted successfully!', 'success');
