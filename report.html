@@ -297,20 +297,27 @@
     document.getElementById('summaryList').innerHTML = '<div class="notice">Loading attendance data…</div>';
     document.getElementById('reportList').innerHTML = '<div class="notice">Loading attendance data…</div>';
 
+    // Remove any existing script tag
+    var old = document.getElementById('sScript');
+    if (old) old.remove();
+
+    // Set up callback BEFORE appending script
     window._summaryCallback = function(data) {
-      delete window._summaryCallback;
-      var s = document.getElementById('sScript'); if (s) s.remove();
+      window._summaryCallback = null;
+      var s = document.getElementById('sScript');
+      if (s) s.remove();
       processSummaryData(data);
     };
 
     var sc = document.createElement('script');
     sc.id = 'sScript';
-    sc.src = SCRIPT_URL + '?callback=_summaryCallback&action=summary';
+    sc.type = 'text/javascript';
+    sc.src = SCRIPT_URL + '?action=summary&callback=_summaryCallback&t=' + Date.now();
     sc.onerror = function() {
       document.getElementById('summaryList').innerHTML = '<div class="notice" style="color:var(--red)">Failed to load — please tap Refresh.</div>';
       document.getElementById('reportList').innerHTML = '<div class="notice" style="color:var(--red)">Failed to load — please tap Refresh.</div>';
     };
-    document.body.appendChild(sc);
+    document.head.appendChild(sc);
 
     setTimeout(function() {
       if (canonicalMembers.length === 0) {
