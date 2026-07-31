@@ -328,7 +328,7 @@
       if (s.currentAbsent >= 2) {
         var lastMissed = '';
         s.serviceHistory.forEach(function(r) {
-          if (!lastMissed && r.am !== 'Present' && r.pm !== 'Present') lastMissed = r.date;
+          if (!lastMissed && r.am !== 'Present' && (r.pm === null || r.pm !== 'Present')) lastMissed = r.date;
         });
         reportData.push({ name: name, consecutive: s.currentAbsent, lastMissed: lastMissed });
       }
