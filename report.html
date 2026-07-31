@@ -184,7 +184,7 @@
           <button class="ctrl-btn" id="summBtnRed" onclick="setSummaryMode('red',this)">🔴 Absent</button>
         </div>
         <div class="legend" id="summaryLegend"></div>
-        <div id="summaryList"><div class="notice">Loading attendance data…</div></div>
+        <div id="summaryList"><div class="notice">Please select a filter or wait for data to load…</div></div>
       </div>
     </div>
 
@@ -202,7 +202,7 @@
           <button class="filter-btn" onclick="setReportFilter('2',this)">2 in a row</button>
           <button class="filter-btn" onclick="setReportFilter('3',this)">3+ in a row</button>
         </div>
-        <div id="reportList"><div class="notice">Loading attendance data…</div></div>
+        <div id="reportList"><div class="notice">Please select a filter or wait for data to load…</div></div>
       </div>
     </div>
 
@@ -366,7 +366,8 @@
   // ── DOT ──────────────────────────────────────────────
   function makeDot(type, m, size) {
     size = size || 14;
-    var ac = m === 'green' ? '#16a34a' : '#dc2626', ec = '#e5e7eb';
+    var ac = m === 'green' ? '#16a34a' : '#dc2626';
+    var ec = '#e5e7eb';
     var lf, rf;
     if (m === 'green') {
       lf = (type==='both'||type==='am') ? ac : ec;
@@ -375,14 +376,21 @@
       lf = (type==='none'||type==='pm') ? ac : ec;
       rf = (type==='none'||type==='am') ? ac : ec;
     }
-    var uid = 'dc' + (dotCounter++);
-    return '<svg width="'+size+'" height="'+size+'" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg">' +
-      '<defs><clipPath id="'+uid+'"><rect x="8" y="0" width="8" height="16"/></clipPath></defs>' +
-      '<circle cx="8" cy="8" r="7" fill="'+lf+'"/>' +
-      '<circle cx="8" cy="8" r="7" fill="'+rf+'" clip-path="url(#'+uid+')"/>' +
-      '<line x1="8" y1="1" x2="8" y2="15" stroke="white" stroke-width="1.5"/>' +
-      '<circle cx="8" cy="8" r="7" fill="none" stroke="#d1d5db" stroke-width="1"/>' +
-      '</svg>';
+    var s = size + 'px';
+    var half = (size/2) + 'px';
+    // Use CSS linear-gradient split circle instead of SVG clip paths
+    return '<span style="' +
+      'display:inline-block;' +
+      'width:'+s+';height:'+s+';' +
+      'border-radius:50%;' +
+      'background:linear-gradient(to right, '+lf+' 50%, '+rf+' 50%);' +
+      'border:1px solid #d1d5db;' +
+      'flex-shrink:0;' +
+      'position:relative;' +
+      '" title="'+type+'"><span style="' +
+      'position:absolute;top:0;left:50%;transform:translateX(-50%);' +
+      'width:1px;height:100%;background:white;' +
+      '"></span></span>';
   }
 
   function renderLegend(id, m) {
