@@ -18,16 +18,15 @@
       --radius: 10px;
     }
     * { box-sizing: border-box; margin: 0; padding: 0; }
-    body { font-family: 'Inter', sans-serif; background: var(--cream); color: var(--gray-700); }
+    body { font-family: 'Inter', sans-serif; background: var(--cream); color: var(--gray-700); min-height: 100vh; }
+
     header { background: var(--navy); color: white; padding: 20px 24px 0; text-align: center; border-bottom: 4px solid var(--gold); }
     header h1 { font-family: 'Playfair Display', serif; font-size: 1.6rem; color: white; }
     header p { font-size: 0.8rem; color: var(--gold-light); margin-top: 4px; letter-spacing: 0.08em; text-transform: uppercase; }
-
-    /* Tabs */
-    .tabs { display: flex; margin-top: 16px; }
+    .tabs { display: none; margin-top: 16px; }
+    .tabs.visible { display: flex; }
     .tab { flex: 1; padding: 10px 4px; text-align: center; font-size: 0.78rem; font-weight: 600; color: var(--gold-light); cursor: pointer; border-bottom: 3px solid transparent; transition: all 0.15s; }
     .tab.active { color: white; border-bottom-color: var(--gold); }
-    .tab:hover { color: white; }
 
     .container { max-width: 700px; margin: 0 auto; padding: 24px 16px 60px; }
     .card { background: var(--white); border-radius: var(--radius); padding: 20px; margin-bottom: 16px; box-shadow: 0 1px 4px rgba(0,0,0,0.07); }
@@ -64,7 +63,7 @@
     .search-wrap input { width: 100%; padding: 10px 12px 10px 36px; border: 1.5px solid var(--gray-300); border-radius: 8px; font-size: 0.9rem; font-family: 'Inter', sans-serif; }
     .search-icon { position: absolute; left: 10px; top: 50%; transform: translateY(-50%); color: var(--gray-500); }
 
-    /* Summary member rows */
+    /* Member rows */
     .member-row { border: 1.5px solid var(--gray-300); border-radius: 8px; padding: 12px 14px; margin-bottom: 8px; background: var(--white); cursor: pointer; transition: border-color 0.15s; }
     .member-row:hover { border-color: var(--navy); }
     .member-row.good { border-color: #86EFAC; background: var(--green-bg); }
@@ -80,12 +79,11 @@
     .dot-row { display: flex; gap: 4px; flex-wrap: wrap; margin-bottom: 6px; }
     .member-meta { font-size: 0.72rem; color: var(--gray-500); }
 
-    /* Report cards */
-    .report-card { border: 1.5px solid var(--gray-300); border-radius: 8px; padding: 12px 14px; margin-bottom: 8px; display: flex; align-items: center; justify-content: space-between; gap: 10px; cursor: pointer; transition: border-color 0.15s; }
+    /* Report */
+    .report-card { border: 1.5px solid var(--gray-300); border-radius: 8px; padding: 12px 14px; margin-bottom: 8px; display: flex; align-items: center; justify-content: space-between; gap: 10px; cursor: pointer; }
     .report-card:hover { border-color: var(--navy); }
     .report-card.warn { border-color: #FCD34D; background: var(--yellow-bg); }
     .report-card.danger { border-color: #FCA5A5; background: var(--red-bg); }
-    .report-info { flex: 1; }
     .report-info .name { font-size: 0.95rem; font-weight: 600; color: var(--navy); }
     .report-info .last-missed { font-size: 0.78rem; color: var(--gray-500); margin-top: 2px; }
     .miss-badge { font-size: 0.78rem; font-weight: 700; padding: 4px 10px; border-radius: 20px; white-space: nowrap; }
@@ -96,9 +94,6 @@
     .member-select { width: 100%; padding: 10px 12px; border: 1.5px solid var(--gray-300); border-radius: 8px; font-size: 0.95rem; font-family: 'Inter', sans-serif; color: var(--navy); background: var(--white); margin-bottom: 16px; }
     .member-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
     .member-header h2 { font-family: 'Playfair Display', serif; font-size: 1.4rem; color: var(--navy); }
-    .pct-pill.sunday-lg { background: var(--navy); color: white; padding: 4px 12px; font-size: 0.8rem; }
-    .pct-pill.service-lg { background: var(--gray-100); color: var(--gray-700); border: 1.5px solid var(--gray-300); padding: 4px 12px; font-size: 0.8rem; }
-    .pct-pill .pct-label-lg { font-size: 0.62rem; font-weight: 500; display: block; opacity: 0.8; }
     .stats-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
     .stat-box { background: var(--gray-100); border-radius: 8px; padding: 10px 12px; }
     .stat-box .num { font-size: 1.2rem; font-weight: 700; color: var(--navy); }
@@ -117,10 +112,10 @@
     /* Shared */
     .legend { display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 12px; }
     .legend-item { display: flex; align-items: center; gap: 5px; font-size: 0.72rem; color: var(--gray-500); }
-    .loading { text-align: center; color: var(--gray-500); padding: 30px 0; font-size: 0.9rem; }
+    .notice { text-align: center; color: var(--gray-500); padding: 30px 0; font-size: 0.9rem; font-style: italic; }
+    .empty { text-align: center; color: var(--green); font-size: 0.9rem; font-weight: 600; padding: 30px 0; }
     .last-updated { text-align: center; font-size: 0.75rem; color: var(--gray-500); margin-bottom: 12px; }
     .refresh-btn { width: 100%; padding: 10px; background: var(--white); color: var(--navy); border: 1.5px solid var(--navy); border-radius: var(--radius); font-size: 0.88rem; font-weight: 600; font-family: 'Inter', sans-serif; cursor: pointer; margin-bottom: 12px; }
-    .empty { text-align: center; color: var(--green); font-size: 0.9rem; font-weight: 600; padding: 30px 0; }
     .toggle-wrap { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; }
     .toggle-wrap span { font-size: 0.78rem; font-weight: 600; color: var(--gray-500); }
     .color-toggle { display: flex; border: 1.5px solid var(--gray-300); border-radius: 20px; overflow: hidden; }
@@ -128,7 +123,7 @@
     .color-btn.active-green { background: var(--green); color: white; }
     .color-btn.active-red { background: var(--red); color: white; }
     .filter-bar { display: flex; gap: 8px; margin-bottom: 14px; flex-wrap: wrap; }
-    .filter-btn { padding: 6px 14px; border-radius: 20px; border: 1.5px solid var(--gray-300); font-size: 0.78rem; font-weight: 600; cursor: pointer; background: var(--white); color: var(--gray-500); font-family: 'Inter', sans-serif; transition: all 0.15s; }
+    .filter-btn { padding: 6px 14px; border-radius: 20px; border: 1.5px solid var(--gray-300); font-size: 0.78rem; font-weight: 600; cursor: pointer; background: var(--white); color: var(--gray-500); font-family: 'Inter', sans-serif; }
     .filter-btn.active { background: var(--navy); border-color: var(--navy); color: white; }
   </style>
 </head>
@@ -136,7 +131,7 @@
 <header>
   <h1>Coldwater Church of Christ</h1>
   <p>Elder Portal</p>
-  <div class="tabs" id="tabBar" style="display:none;">
+  <div class="tabs" id="tabBar">
     <div class="tab active" onclick="switchTab('summary',this)">📋 Summary</div>
     <div class="tab" onclick="switchTab('absences',this)">⚠️ Absences</div>
     <div class="tab" onclick="switchTab('member',this)">👤 Member</div>
@@ -144,6 +139,7 @@
 </header>
 
 <div class="container">
+
   <!-- PIN -->
   <div id="pinScreen">
     <div class="pin-card">
@@ -188,7 +184,7 @@
           <button class="ctrl-btn" id="summBtnRed" onclick="setSummaryMode('red',this)">🔴 Absent</button>
         </div>
         <div class="legend" id="summaryLegend"></div>
-        <div id="summaryList"><div class="loading">Loading…</div></div>
+        <div id="summaryList"><div class="notice">Loading attendance data…</div></div>
       </div>
     </div>
 
@@ -198,7 +194,7 @@
         <div class="card-title">Consecutive Sunday Absences (2+ in a row)</div>
         <div class="stats">
           <div class="stat-pill"><div class="num" id="rTotalMembers">—</div><div class="lbl">Members</div></div>
-          <div class="stat-pill" style=""><div class="num" id="rWarnCount" style="color:var(--yellow)">—</div><div class="lbl">2 in a row</div></div>
+          <div class="stat-pill"><div class="num" id="rWarnCount" style="color:#92400E">—</div><div class="lbl">2 in a row</div></div>
           <div class="stat-pill"><div class="num" id="rDangerCount" style="color:var(--red)">—</div><div class="lbl">3+ in a row</div></div>
         </div>
         <div class="filter-bar">
@@ -206,7 +202,7 @@
           <button class="filter-btn" onclick="setReportFilter('2',this)">2 in a row</button>
           <button class="filter-btn" onclick="setReportFilter('3',this)">3+ in a row</button>
         </div>
-        <div id="reportList"><div class="loading">Loading…</div></div>
+        <div id="reportList"><div class="notice">Loading attendance data…</div></div>
       </div>
     </div>
 
@@ -219,12 +215,10 @@
         </select>
         <div class="member-header" id="memberHeader"></div>
       </div>
-
       <div class="card">
         <div class="card-title">Attendance Summary</div>
-        <div class="stats-grid" id="memberStatsGrid"><div class="loading">Loading…</div></div>
+        <div class="stats-grid" id="memberStatsGrid"></div>
       </div>
-
       <div class="card">
         <div class="card-title">Dot History</div>
         <div class="toggle-wrap">
@@ -237,10 +231,9 @@
         <div class="legend" id="memberLegend"></div>
         <div class="dot-row" id="memberDotRow"></div>
       </div>
-
       <div class="card">
         <div class="card-title">Service History</div>
-        <div id="memberServiceList"><div class="loading">Loading…</div></div>
+        <div id="memberServiceList"></div>
       </div>
     </div>
 
@@ -255,18 +248,18 @@
   var memberMode = 'green';
   var sortMode = 'az';
   var reportFilter = 'all';
-  var canonicalMembers = [];
-  var allRows = [];
   var memberStats = {};
+  var canonicalMembers = [];
   var reportData = [];
   var currentMember = '';
-  var dataLoaded = false;
+  var dotCounter = 0;
 
+  // ── PIN ──────────────────────────────────────────────
   function checkPin() {
     if (document.getElementById('pinInput').value === PIN) {
       document.getElementById('pinScreen').style.display = 'none';
       document.getElementById('portalScreen').style.display = 'block';
-      document.getElementById('tabBar').style.display = 'flex';
+      document.getElementById('tabBar').classList.add('visible');
       loadData();
     } else {
       document.getElementById('pinError').style.display = 'block';
@@ -274,42 +267,53 @@
     }
   }
 
+  // ── TABS ─────────────────────────────────────────────
   function switchTab(tab, btn) {
-    document.querySelectorAll('.tab').forEach(function(t){t.classList.remove('active');});
+    document.querySelectorAll('.tab').forEach(function(t){ t.classList.remove('active'); });
     btn.classList.add('active');
-    document.querySelectorAll('.tab-content').forEach(function(c){c.classList.remove('active');});
+    document.querySelectorAll('.tab-content').forEach(function(c){ c.classList.remove('active'); });
     document.getElementById('tab-'+tab).classList.add('active');
   }
 
+  // ── LOAD DATA ────────────────────────────────────────
   function loadData() {
-    dataLoaded = false;
-    document.getElementById('summaryList').innerHTML = '<div class="loading">Loading…</div>';
-    document.getElementById('reportList').innerHTML = '<div class="loading">Loading…</div>';
-    document.getElementById('memberServiceList').innerHTML = '<div class="loading">Loading…</div>';
+    canonicalMembers = [];
+    memberStats = {};
+    reportData = [];
+    dotCounter = 0;
+
+    document.getElementById('summaryList').innerHTML = '<div class="notice">Loading attendance data…</div>';
+    document.getElementById('reportList').innerHTML = '<div class="notice">Loading attendance data…</div>';
 
     window._summaryCallback = function(data) {
       delete window._summaryCallback;
-      var s=document.getElementById('mScript'); if(s)s.remove();
+      var s = document.getElementById('sScript'); if (s) s.remove();
       processSummaryData(data);
     };
-    var ms=document.createElement('script');
-    ms.id='mScript';
-    ms.src=SCRIPT_URL+'?callback=_summaryCallback&action=summary';
-    document.body.appendChild(ms);
 
-    setTimeout(function(){
-      if(!dataLoaded){
-        document.getElementById('summaryList').innerHTML='<div class="loading" style="color:#991B1B">Taking longer than expected — please tap Refresh.</div>';
-        document.getElementById('reportList').innerHTML='<div class="loading" style="color:#991B1B">Taking longer than expected — please tap Refresh.</div>';
-        document.getElementById('memberServiceList').innerHTML='<div class="loading" style="color:#991B1B">Taking longer than expected — please tap Refresh.</div>';
+    var sc = document.createElement('script');
+    sc.id = 'sScript';
+    sc.src = SCRIPT_URL + '?callback=_summaryCallback&action=summary';
+    sc.onerror = function() {
+      document.getElementById('summaryList').innerHTML = '<div class="notice" style="color:var(--red)">Failed to load — please tap Refresh.</div>';
+      document.getElementById('reportList').innerHTML = '<div class="notice" style="color:var(--red)">Failed to load — please tap Refresh.</div>';
+    };
+    document.body.appendChild(sc);
+
+    setTimeout(function() {
+      if (canonicalMembers.length === 0) {
+        document.getElementById('summaryList').innerHTML = '<div class="notice" style="color:var(--red)">Taking too long — please tap Refresh.</div>';
+        document.getElementById('reportList').innerHTML = '<div class="notice" style="color:var(--red)">Taking too long — please tap Refresh.</div>';
       }
     }, 30000);
   }
 
+  // ── PROCESS DATA ─────────────────────────────────────
   function processSummaryData(data) {
-    // Data comes pre-processed from server
-    memberStats = {};
-    canonicalMembers = [];
+    if (!Array.isArray(data) || data.length === 0 || !data[0].name) {
+      document.getElementById('summaryList').innerHTML = '<div class="notice" style="color:var(--red)">Unexpected data format — please tap Refresh.</div>';
+      return;
+    }
 
     data.forEach(function(s) {
       canonicalMembers.push(s.name);
@@ -318,7 +322,9 @@
 
     // Populate member dropdown
     var sel = document.getElementById('memberSelect');
-    sel.innerHTML = canonicalMembers.map(function(n){return '<option value="'+n+'">'+n+'</option>';}).join('');
+    sel.innerHTML = canonicalMembers.map(function(n) {
+      return '<option value="'+n+'">'+n+'</option>';
+    }).join('');
 
     // Build report data
     reportData = [];
@@ -327,7 +333,9 @@
       if (s.currentAbsent >= 2) {
         var lastMissed = '';
         s.serviceHistory.forEach(function(r) {
-          if (!lastMissed && r.am !== 'Present' && (r.pm === null || r.pm !== 'Present')) lastMissed = r.date;
+          if (!lastMissed && r.am !== 'Present' && (r.pm === null || r.pm !== 'Present')) {
+            lastMissed = r.date;
+          }
         });
         reportData.push({ name: name, consecutive: s.currentAbsent, lastMissed: lastMissed });
       }
@@ -336,7 +344,7 @@
 
     // Overall stats
     var pcts = canonicalMembers.map(function(n){ return memberStats[n].sundayPct; });
-    var avg = pcts.length ? Math.round(pcts.reduce(function(a,b){return a+b;},0)/pcts.length) : 0;
+    var avg = pcts.length ? Math.round(pcts.reduce(function(a,b){ return a+b; }, 0) / pcts.length) : 0;
     var below = pcts.filter(function(p){ return p < 75; }).length;
     document.getElementById('totalMembers').textContent = canonicalMembers.length;
     document.getElementById('avgSunday').textContent = avg + '%';
@@ -344,60 +352,65 @@
     document.getElementById('rTotalMembers').textContent = canonicalMembers.length;
     document.getElementById('lastUpdated').textContent = 'Last updated: ' + new Date().toLocaleTimeString();
 
+    // Set first member
     currentMember = canonicalMembers[0];
-    document.getElementById('memberSelect').value = currentMember;
+    sel.value = currentMember;
 
-    dataLoaded = true;
-    setTimeout(function() {
-      renderLegend('summaryLegend', summaryMode);
-      renderSummary();
-      renderReport();
-      renderMemberDetail(currentMember);
-    }, 100);
+    // Render everything
+    renderLegend('summaryLegend', summaryMode);
+    renderSummary();
+    renderReport();
+    renderMemberDetail(currentMember);
   }
 
-  var dotCounter = 0;
-  function makeDot(type,m,size){
-    size=size||14;
-    var ac=m==='green'?'#16a34a':'#dc2626',ec='#e5e7eb';
-    var lf,rf;
-    if(m==='green'){lf=(type==='both'||type==='am')?ac:ec;rf=(type==='both'||type==='pm')?ac:ec;}
-    else{lf=(type==='none'||type==='pm')?ac:ec;rf=(type==='none'||type==='am')?ac:ec;}
-    var uid='d'+(dotCounter++);
+  // ── DOT ──────────────────────────────────────────────
+  function makeDot(type, m, size) {
+    size = size || 14;
+    var ac = m === 'green' ? '#16a34a' : '#dc2626', ec = '#e5e7eb';
+    var lf, rf;
+    if (m === 'green') {
+      lf = (type==='both'||type==='am') ? ac : ec;
+      rf = (type==='both'||type==='pm') ? ac : ec;
+    } else {
+      lf = (type==='none'||type==='pm') ? ac : ec;
+      rf = (type==='none'||type==='am') ? ac : ec;
+    }
+    var uid = 'dc' + (dotCounter++);
     return '<svg width="'+size+'" height="'+size+'" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg">' +
-      '<defs><clipPath id="R'+uid+'"><rect x="8" y="0" width="8" height="16"/></clipPath></defs>' +
+      '<defs><clipPath id="'+uid+'"><rect x="8" y="0" width="8" height="16"/></clipPath></defs>' +
       '<circle cx="8" cy="8" r="7" fill="'+lf+'"/>' +
-      '<circle cx="8" cy="8" r="7" fill="'+rf+'" clip-path="url(#R'+uid+')"/>' +
+      '<circle cx="8" cy="8" r="7" fill="'+rf+'" clip-path="url(#'+uid+')"/>' +
       '<line x1="8" y1="1" x2="8" y2="15" stroke="white" stroke-width="1.5"/>' +
       '<circle cx="8" cy="8" r="7" fill="none" stroke="#d1d5db" stroke-width="1"/>' +
       '</svg>';
   }
 
-  function renderLegend(id,m){
-    var items=m==='green'
-      ?[['both','Both'],['am','AM only'],['pm','PM only'],['none','Missed both']]
-      :[['none','Missed both'],['pm','Missed AM'],['am','Missed PM'],['both','Attended both']];
-    document.getElementById(id).innerHTML=items.map(function(i){
+  function renderLegend(id, m) {
+    var items = m === 'green'
+      ? [['both','Both'],['am','AM only'],['pm','PM only'],['none','Missed both']]
+      : [['none','Missed both'],['pm','Missed AM'],['am','Missed PM'],['both','Attended both']];
+    document.getElementById(id).innerHTML = items.map(function(i) {
       return '<div class="legend-item">'+makeDot(i[0],m,14)+'<span>'+i[1]+'</span></div>';
     }).join('');
   }
 
-  function renderSummary(){
-    if(!dataLoaded) return;
-    var q=document.getElementById('summarySearch').value.toLowerCase();
-    var list=canonicalMembers.filter(function(n){return n.toLowerCase().indexOf(q)!==-1;});
-    list.sort(function(a,b){
-      var sa=memberStats[a],sb=memberStats[b];
-      if(sortMode==='az') return a.localeCompare(b);
-      if(sortMode==='pct-high') return sb.sundayPct-sa.sundayPct;
-      if(sortMode==='pct-low') return sa.sundayPct-sb.sundayPct;
-      if(sortMode==='missed') return (sb.totalSundays-sb.sundayPresent)-(sa.totalSundays-sa.sundayPresent);
+  // ── SUMMARY ──────────────────────────────────────────
+  function renderSummary() {
+    if (canonicalMembers.length === 0) return;
+    var q = document.getElementById('summarySearch').value.toLowerCase();
+    var list = canonicalMembers.filter(function(n){ return n.toLowerCase().indexOf(q) !== -1; });
+    list.sort(function(a,b) {
+      var sa = memberStats[a], sb = memberStats[b];
+      if (sortMode==='az') return a.localeCompare(b);
+      if (sortMode==='pct-high') return sb.sundayPct - sa.sundayPct;
+      if (sortMode==='pct-low') return sa.sundayPct - sb.sundayPct;
+      if (sortMode==='missed') return (sb.totalSundays-sb.sundayPresent)-(sa.totalSundays-sa.sundayPresent);
       return 0;
     });
-    document.getElementById('summaryList').innerHTML=list.map(function(name){
-      var s=memberStats[name];
-      var cls=s.sundayPct>=90?'good':s.sundayPct>=75?'warn':'poor';
-      var dots=s.dotHistory.map(function(t){return makeDot(t,summaryMode,14);}).join('');
+    document.getElementById('summaryList').innerHTML = list.map(function(name) {
+      var s = memberStats[name];
+      var cls = s.sundayPct >= 90 ? 'good' : s.sundayPct >= 75 ? 'warn' : 'poor';
+      var dots = s.dotHistory.map(function(t){ return makeDot(t, summaryMode, 14); }).join('');
       return '<div class="member-row '+cls+'" onclick="goToMember(\''+name+'\')">'+
         '<div class="member-top">'+
         '<span class="member-name">'+name+' <span style="font-size:0.7rem;color:var(--gray-500)">→</span></span>'+
@@ -411,57 +424,83 @@
     }).join('');
   }
 
-  function renderReport(){
-    if(!dataLoaded) return;
-    var warn=reportData.filter(function(r){return r.consecutive===2;}).length;
-    var danger=reportData.filter(function(r){return r.consecutive>=3;}).length;
-    document.getElementById('rWarnCount').textContent=warn;
-    document.getElementById('rDangerCount').textContent=danger;
+  function setSort(s, btn) {
+    sortMode = s;
+    document.querySelectorAll('#tab-summary .ctrl-btn').forEach(function(b){
+      if (['A–Z','% High','% Low','Most Missed'].indexOf(b.textContent) !== -1) b.className = 'ctrl-btn';
+    });
+    btn.className = 'ctrl-btn active';
+    renderSummary();
+  }
 
-    var list=reportData;
-    if(reportFilter==='2') list=reportData.filter(function(r){return r.consecutive===2;});
-    else if(reportFilter==='3') list=reportData.filter(function(r){return r.consecutive>=3;});
+  function setSummaryMode(m, btn) {
+    summaryMode = m;
+    dotCounter = 0;
+    document.getElementById('summBtnGreen').className = 'ctrl-btn' + (m==='green' ? ' active-green' : '');
+    document.getElementById('summBtnRed').className = 'ctrl-btn' + (m==='red' ? ' active-red' : '');
+    renderLegend('summaryLegend', m);
+    renderSummary();
+  }
 
-    if(list.length===0){
-      document.getElementById('reportList').innerHTML='<div class="empty">🎉 No members with 2+ consecutive absences!</div>';
+  // ── ABSENCES ─────────────────────────────────────────
+  function renderReport() {
+    if (canonicalMembers.length === 0) return;
+    var warn = reportData.filter(function(r){ return r.consecutive === 2; }).length;
+    var danger = reportData.filter(function(r){ return r.consecutive >= 3; }).length;
+    document.getElementById('rWarnCount').textContent = warn;
+    document.getElementById('rDangerCount').textContent = danger;
+
+    var list = reportData;
+    if (reportFilter === '2') list = reportData.filter(function(r){ return r.consecutive === 2; });
+    else if (reportFilter === '3') list = reportData.filter(function(r){ return r.consecutive >= 3; });
+
+    if (list.length === 0) {
+      document.getElementById('reportList').innerHTML = '<div class="empty">🎉 No members with 2+ consecutive absences!</div>';
       return;
     }
-    document.getElementById('reportList').innerHTML=list.map(function(r){
-      var bc=r.consecutive>=3?'danger':'warn';
-      var lastDate=formatDate(r.lastMissed);
+    document.getElementById('reportList').innerHTML = list.map(function(r) {
+      var bc = r.consecutive >= 3 ? 'danger' : 'warn';
       return '<div class="report-card '+bc+'" onclick="goToMember(\''+r.name+'\')">'+
         '<div class="report-info">'+
         '<div class="name">'+r.name+' <span style="font-size:0.7rem;color:var(--gray-500)">→</span></div>'+
-        '<div class="last-missed">Last missed: '+lastDate+'</div>'+
+        '<div class="last-missed">Last missed: '+formatDate(r.lastMissed)+'</div>'+
         '</div>'+
         '<span class="miss-badge '+bc+'">'+r.consecutive+' in a row</span>'+
         '</div>';
     }).join('');
   }
 
-  function goToMember(name){
-    currentMember=name;
-    document.getElementById('memberSelect').value=name;
-    document.querySelectorAll('.tab').forEach(function(t){t.classList.remove('active');});
+  function setReportFilter(f, btn) {
+    reportFilter = f;
+    document.querySelectorAll('.filter-btn').forEach(function(b){ b.classList.remove('active'); });
+    btn.classList.add('active');
+    renderReport();
+  }
+
+  // ── MEMBER DETAIL ────────────────────────────────────
+  function goToMember(name) {
+    currentMember = name;
+    document.getElementById('memberSelect').value = name;
+    document.querySelectorAll('.tab').forEach(function(t){ t.classList.remove('active'); });
     document.querySelectorAll('.tab')[2].classList.add('active');
-    document.querySelectorAll('.tab-content').forEach(function(c){c.classList.remove('active');});
+    document.querySelectorAll('.tab-content').forEach(function(c){ c.classList.remove('active'); });
     document.getElementById('tab-member').classList.add('active');
     renderMemberDetail(name);
   }
 
-  function renderMemberDetail(name){
-    if(!name||!memberStats[name]) return;
-    currentMember=name;
-    var s=memberStats[name];
+  function renderMemberDetail(name) {
+    if (!name || !memberStats[name]) return;
+    currentMember = name;
+    var s = memberStats[name];
 
-    document.getElementById('memberHeader').innerHTML=
+    document.getElementById('memberHeader').innerHTML =
       '<h2>'+name+'</h2>'+
       '<div class="pct-group">'+
-      '<div class="pct-pill sunday-lg">'+s.sundayPct+'%<span class="pct-label-lg">Sunday</span></div>'+
-      '<div class="pct-pill service-lg">'+s.servicePct+'%<span class="pct-label-lg">Service</span></div>'+
+      '<div class="pct-pill sunday">'+s.sundayPct+'%<span class="pct-label">Sunday</span></div>'+
+      '<div class="pct-pill service">'+s.servicePct+'%<span class="pct-label">Service</span></div>'+
       '</div>';
 
-    document.getElementById('memberStatsGrid').innerHTML=
+    document.getElementById('memberStatsGrid').innerHTML =
       '<div class="stat-box good"><div class="num">'+s.sundayPresent+'</div><div class="lbl">Sundays Attended</div></div>'+
       '<div class="stat-box bad"><div class="num">'+(s.totalSundays-s.sundayPresent)+'</div><div class="lbl">Sundays Missed</div></div>'+
       '<div class="stat-box good"><div class="num">'+s.servicesPresent+'</div><div class="lbl">Services Attended</div></div>'+
@@ -471,63 +510,45 @@
 
     renderMemberDots(s.dotHistory);
 
-    if(!s.serviceHistory||s.serviceHistory.length===0){
-      document.getElementById('memberServiceList').innerHTML='<div class="loading">No records found.</div>';
+    if (!s.serviceHistory || s.serviceHistory.length === 0) {
+      document.getElementById('memberServiceList').innerHTML = '<div class="notice">No records found.</div>';
       return;
     }
-    document.getElementById('memberServiceList').innerHTML=s.serviceHistory.map(function(row){
-      var d=formatDate(row.date);
-      var amB='<span class="badge '+(row.am==='Present'?'present':'absent')+'">'+(row.am==='Present'?'AM Present':'AM Absent')+'</span>';
-      var pmB=row.pm!==null?'<span class="badge '+(row.pm==='Present'?'present':'absent')+'">'+(row.pm==='Present'?'PM Present':'PM Absent')+'</span>':'';
-      var rB=(row.am!=='Present'||(row.pm!==null&&row.pm!=='Present'))&&row.reason?'<span class="badge reason">'+row.reason+'</span>':'';
+    document.getElementById('memberServiceList').innerHTML = s.serviceHistory.map(function(row) {
+      var d = formatDate(row.date);
+      var amB = '<span class="badge '+(row.am==='Present'?'present':'absent')+'">'+(row.am==='Present'?'AM Present':'AM Absent')+'</span>';
+      var pmB = row.pm !== null ? '<span class="badge '+(row.pm==='Present'?'present':'absent')+'">'+(row.pm==='Present'?'PM Present':'PM Absent')+'</span>' : '';
+      var rB = (row.am!=='Present'||(row.pm!==null&&row.pm!=='Present')) && row.reason ? '<span class="badge reason">'+row.reason+'</span>' : '';
       return '<div class="service-row"><span class="service-date">'+d+'</span><div class="service-badges">'+amB+pmB+rB+'</div></div>';
     }).join('');
   }
 
-  function renderMemberDots(history){
-    document.getElementById('memberDotRow').innerHTML=history.map(function(t){return makeDot(t,memberMode,16);}).join('');
-    renderLegend('memberLegend',memberMode);
+  function renderMemberDots(history) {
+    dotCounter = 0;
+    document.getElementById('memberDotRow').innerHTML = history.map(function(t){ return makeDot(t, memberMode, 16); }).join('');
+    renderLegend('memberLegend', memberMode);
   }
 
-  function formatDate(dateStr){
-    if(!dateStr) return '';
-    var s=dateStr.toString().trim(),d;
-    if(/^\d{4}-\d{2}-\d{2}/.test(s)){var p=s.substring(0,10).split('-');d=new Date(parseInt(p[0]),parseInt(p[1])-1,parseInt(p[2]));}
-    else if(s.indexOf('/')!==-1){var p=s.split('/');d=new Date(parseInt(p[2]),parseInt(p[0])-1,parseInt(p[1]));}
-    else{d=new Date(s);}
-    if(!d||isNaN(d.getTime())) return s;
-    return d.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});
+  function setMemberMode(m, btn) {
+    memberMode = m;
+    document.querySelectorAll('#tab-member .color-btn').forEach(function(b){ b.className = 'color-btn'; });
+    btn.className = 'color-btn active-' + m;
+    if (memberStats[currentMember]) renderMemberDots(memberStats[currentMember].dotHistory);
   }
 
-  function setSort(s,btn){
-    sortMode=s;
-    document.querySelectorAll('#tab-summary .ctrl-btn').forEach(function(b){
-      if(['A–Z','% High','% Low','Most Missed'].indexOf(b.textContent)!==-1) b.className='ctrl-btn';
-    });
-    btn.className='ctrl-btn active';
-    renderSummary();
-  }
-
-  function setSummaryMode(m,btn){
-    summaryMode=m;
-    document.getElementById('summBtnGreen').className='ctrl-btn'+(m==='green'?' active-green':'');
-    document.getElementById('summBtnRed').className='ctrl-btn'+(m==='red'?' active-red':'');
-    renderLegend('summaryLegend',m);
-    renderSummary();
-  }
-
-  function setMemberMode(m,btn){
-    memberMode=m;
-    document.querySelectorAll('#tab-member .color-btn').forEach(function(b){b.className='color-btn';});
-    btn.className='color-btn active-'+m;
-    if(memberStats[currentMember]) renderMemberDots(memberStats[currentMember].dotHistory);
-  }
-
-  function setReportFilter(f,btn){
-    reportFilter=f;
-    document.querySelectorAll('.filter-btn').forEach(function(b){b.classList.remove('active');});
-    btn.classList.add('active');
-    renderReport();
+  // ── HELPERS ──────────────────────────────────────────
+  function formatDate(dateStr) {
+    if (!dateStr) return '';
+    var s = dateStr.toString().trim(), d;
+    if (/^\d{4}-\d{2}-\d{2}/.test(s)) {
+      var p = s.substring(0,10).split('-');
+      d = new Date(parseInt(p[0]), parseInt(p[1])-1, parseInt(p[2]));
+    } else if (s.indexOf('/') !== -1) {
+      var p = s.split('/');
+      d = new Date(parseInt(p[2]), parseInt(p[0])-1, parseInt(p[1]));
+    } else { d = new Date(s); }
+    if (!d || isNaN(d.getTime())) return s;
+    return d.toLocaleDateString('en-US', { month:'short', day:'numeric', year:'numeric' });
   }
 </script>
 </body>
