@@ -297,27 +297,25 @@
     document.getElementById('summaryList').innerHTML = '<div class="notice">Loading attendance data…</div>';
     document.getElementById('reportList').innerHTML = '<div class="notice">Loading attendance data…</div>';
 
-    // Remove any existing script tag
-    var old = document.getElementById('sScript');
-    if (old) old.remove();
+    var url = SCRIPT_URL + '?action=summary&t=' + Date.now();
 
-    // Set up callback BEFORE appending script
-    window._summaryCallback = function(data) {
-      window._summaryCallback = null;
-      var s = document.getElementById('sScript');
-      if (s) s.remove();
-      processSummaryData(data);
-    };
-
-    var sc = document.createElement('script');
-    sc.id = 'sScript';
-    sc.type = 'text/javascript';
-    sc.src = SCRIPT_URL + '?action=summary&callback=_summaryCallback&t=' + Date.now();
-    sc.onerror = function() {
-      document.getElementById('summaryList').innerHTML = '<div class="notice" style="color:var(--red)">Failed to load — please tap Refresh.</div>';
-      document.getElementById('reportList').innerHTML = '<div class="notice" style="color:var(--red)">Failed to load — please tap Refresh.</div>';
-    };
-    document.head.appendChild(sc);
+    fetch(url, { redirect: 'follow' })
+      .then(function(response) {
+        return response.text();
+      })
+      .then(function(text) {
+        // Strip JSONP wrapper if present e.g. _summaryCallback([...])
+        var json = text.trim();
+        if (json.indexOf('(') !== -1) {
+          json = json.substring(json.indexOf('(') + 1, json.lastIndexOf(')'));
+        }
+        var data = JSON.parse(json);
+        processSummaryData(data);
+      })
+      .catch(function(err) {
+        document.getElementById('summaryList').innerHTML = '<div class="notice" style="color:var(--red)">Failed to load: ' + err.message + ' — please tap Refresh.</div>';
+        document.getElementById('reportList').innerHTML = '<div class="notice" style="color:var(--red)">Failed to load — please tap Refresh.</div>';
+      });
 
     setTimeout(function() {
       if (canonicalMembers.length === 0) {
