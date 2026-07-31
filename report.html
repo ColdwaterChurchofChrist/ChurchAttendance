@@ -273,6 +273,18 @@
     btn.classList.add('active');
     document.querySelectorAll('.tab-content').forEach(function(c){ c.classList.remove('active'); });
     document.getElementById('tab-'+tab).classList.add('active');
+    // Force re-render when switching tabs
+    if (tab === 'summary' && canonicalMembers.length > 0) {
+      dotCounter = 0;
+      renderLegend('summaryLegend', summaryMode);
+      renderSummary();
+    }
+    if (tab === 'absences' && canonicalMembers.length > 0) {
+      renderReport();
+    }
+    if (tab === 'member' && currentMember) {
+      renderMemberDetail(currentMember);
+    }
   }
 
   // ── LOAD DATA ────────────────────────────────────────
@@ -311,7 +323,8 @@
   // ── PROCESS DATA ─────────────────────────────────────
   function processSummaryData(data) {
     if (!Array.isArray(data) || data.length === 0 || !data[0].name) {
-      document.getElementById('summaryList').innerHTML = '<div class="notice" style="color:var(--red)">Unexpected data format — please tap Refresh.</div>';
+      document.getElementById('summaryList').innerHTML = '<div class="notice" style="color:var(--red)">Data error: ' + JSON.stringify(data).substring(0,100) + '</div>';
+      document.getElementById('reportList').innerHTML = '<div class="notice" style="color:var(--red)">Data error.</div>';
       return;
     }
 
