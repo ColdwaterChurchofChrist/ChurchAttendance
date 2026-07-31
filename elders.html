@@ -1,0 +1,584 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate"/>
+  <meta http-equiv="Pragma" content="no-cache"/>
+  <meta http-equiv="Expires" content="0"/>
+  <title>Elder Portal – Coldwater Church of Christ</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet"/>
+  <style>
+    :root {
+      --navy: #1B2A4A; --gold: #C9A84C; --gold-light: #F0DFA0;
+      --cream: #FDFAF4; --white: #FFFFFF; --gray-100: #F3F4F6;
+      --gray-300: #D1D5DB; --gray-500: #6B7280; --gray-700: #374151;
+      --green: #16a34a; --green-bg: #DCFCE7; --red: #dc2626;
+      --red-bg: #FEE2E2; --yellow: #92400E; --yellow-bg: #FEF3C7;
+      --radius: 10px;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Inter', sans-serif; background: var(--cream); color: var(--gray-700); min-height: 100vh; }
+
+    header { background: var(--navy); color: white; padding: 20px 24px 0; text-align: center; border-bottom: 4px solid var(--gold); }
+    header h1 { font-family: 'Playfair Display', serif; font-size: 1.6rem; color: white; }
+    header p { font-size: 0.8rem; color: var(--gold-light); margin-top: 4px; letter-spacing: 0.08em; text-transform: uppercase; }
+    .tabs { display: none; margin-top: 16px; }
+    .tabs.visible { display: flex; }
+    .tab { flex: 1; padding: 10px 4px; text-align: center; font-size: 0.78rem; font-weight: 600; color: var(--gold-light); cursor: pointer; border-bottom: 3px solid transparent; transition: all 0.15s; }
+    .tab.active { color: white; border-bottom-color: var(--gold); }
+
+    .container { max-width: 700px; margin: 0 auto; padding: 24px 16px 60px; }
+    .card { background: var(--white); border-radius: var(--radius); padding: 20px; margin-bottom: 16px; box-shadow: 0 1px 4px rgba(0,0,0,0.07); }
+    .card-title { font-size: 0.7rem; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: var(--gold); margin-bottom: 14px; }
+
+    /* PIN */
+    #pinScreen { display: flex; flex-direction: column; align-items: center; padding: 60px 24px; }
+    .pin-card { background: var(--white); border-radius: var(--radius); padding: 32px 24px; box-shadow: 0 1px 4px rgba(0,0,0,0.07); width: 100%; max-width: 320px; text-align: center; }
+    .pin-card h2 { font-family: 'Playfair Display', serif; color: var(--navy); font-size: 1.3rem; margin-bottom: 8px; }
+    .pin-card p { font-size: 0.85rem; color: var(--gray-500); margin-bottom: 20px; }
+    .pin-input { width: 100%; padding: 12px; border: 1.5px solid var(--gray-300); border-radius: 8px; font-size: 1.5rem; text-align: center; letter-spacing: 0.3em; font-family: 'Inter', sans-serif; color: var(--navy); margin-bottom: 14px; }
+    .pin-input:focus { outline: none; border-color: var(--navy); }
+    .pin-btn { width: 100%; padding: 12px; background: var(--navy); color: white; border: none; border-radius: 8px; font-size: 0.95rem; font-weight: 600; font-family: 'Inter', sans-serif; cursor: pointer; border-bottom: 3px solid var(--gold); }
+    .pin-error { color: var(--red); font-size: 0.82rem; margin-top: 10px; display: none; }
+
+    #portalScreen { display: none; }
+    .tab-content { display: none; }
+    .tab-content.active { display: block; }
+
+    /* Stats */
+    .stats { display: flex; gap: 12px; margin-bottom: 16px; }
+    .stat-pill { flex: 1; text-align: center; background: var(--gray-100); border-radius: 8px; padding: 10px 4px; }
+    .stat-pill .num { font-size: 1.3rem; font-weight: 700; color: var(--navy); }
+    .stat-pill .lbl { font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.07em; color: var(--gray-500); }
+
+    /* Controls */
+    .controls { display: flex; gap: 8px; margin-bottom: 12px; flex-wrap: wrap; }
+    .ctrl-btn { padding: 6px 14px; border-radius: 20px; border: 1.5px solid var(--gray-300); font-size: 0.78rem; font-weight: 600; cursor: pointer; background: var(--white); color: var(--gray-500); font-family: 'Inter', sans-serif; transition: all 0.15s; }
+    .ctrl-btn.active { background: var(--navy); border-color: var(--navy); color: white; }
+    .ctrl-btn.active-green { background: var(--green); border-color: var(--green); color: white; }
+    .ctrl-btn.active-red { background: var(--red); border-color: var(--red); color: white; }
+
+    .search-wrap { position: relative; margin-bottom: 12px; }
+    .search-wrap input { width: 100%; padding: 10px 12px 10px 36px; border: 1.5px solid var(--gray-300); border-radius: 8px; font-size: 0.9rem; font-family: 'Inter', sans-serif; }
+    .search-icon { position: absolute; left: 10px; top: 50%; transform: translateY(-50%); color: var(--gray-500); }
+
+    /* Member rows */
+    .member-row { border: 1.5px solid var(--gray-300); border-radius: 8px; padding: 12px 14px; margin-bottom: 8px; background: var(--white); cursor: pointer; transition: border-color 0.15s; }
+    .member-row:hover { border-color: var(--navy); }
+    .member-row.good { border-color: #86EFAC; background: var(--green-bg); }
+    .member-row.warn { border-color: #FCD34D; background: var(--yellow-bg); }
+    .member-row.poor { border-color: #FCA5A5; background: var(--red-bg); }
+    .member-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
+    .member-name { font-size: 0.95rem; font-weight: 600; color: var(--navy); }
+    .pct-group { display: flex; gap: 6px; }
+    .pct-pill { text-align: center; padding: 3px 10px; border-radius: 20px; font-size: 0.75rem; font-weight: 700; }
+    .pct-pill.sunday { background: var(--navy); color: white; }
+    .pct-pill.service { background: rgba(0,0,0,0.06); color: var(--gray-700); }
+    .pct-pill .pct-label { font-size: 0.6rem; font-weight: 500; display: block; opacity: 0.8; }
+    .dot-row { display: flex; gap: 4px; flex-wrap: wrap; margin-bottom: 6px; }
+    .member-meta { font-size: 0.72rem; color: var(--gray-500); }
+
+    /* Report */
+    .report-card { border: 1.5px solid var(--gray-300); border-radius: 8px; padding: 12px 14px; margin-bottom: 8px; display: flex; align-items: center; justify-content: space-between; gap: 10px; cursor: pointer; }
+    .report-card:hover { border-color: var(--navy); }
+    .report-card.warn { border-color: #FCD34D; background: var(--yellow-bg); }
+    .report-card.danger { border-color: #FCA5A5; background: var(--red-bg); }
+    .report-info .name { font-size: 0.95rem; font-weight: 600; color: var(--navy); }
+    .report-info .last-missed { font-size: 0.78rem; color: var(--gray-500); margin-top: 2px; }
+    .miss-badge { font-size: 0.78rem; font-weight: 700; padding: 4px 10px; border-radius: 20px; white-space: nowrap; }
+    .miss-badge.warn { background: #FCD34D; color: var(--yellow); }
+    .miss-badge.danger { background: #FCA5A5; color: var(--red); }
+
+    /* Member detail */
+    .member-select { width: 100%; padding: 10px 12px; border: 1.5px solid var(--gray-300); border-radius: 8px; font-size: 0.95rem; font-family: 'Inter', sans-serif; color: var(--navy); background: var(--white); margin-bottom: 16px; }
+    .member-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+    .member-header h2 { font-family: 'Playfair Display', serif; font-size: 1.4rem; color: var(--navy); }
+    .stats-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
+    .stat-box { background: var(--gray-100); border-radius: 8px; padding: 10px 12px; }
+    .stat-box .num { font-size: 1.2rem; font-weight: 700; color: var(--navy); }
+    .stat-box .lbl { font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.07em; color: var(--gray-500); margin-top: 2px; }
+    .stat-box.good .num { color: var(--green); }
+    .stat-box.bad .num { color: var(--red); }
+    .service-row { display: flex; align-items: center; padding: 10px 0; border-bottom: 1px solid var(--gray-100); gap: 10px; flex-wrap: wrap; }
+    .service-row:last-child { border-bottom: none; }
+    .service-date { font-size: 0.82rem; font-weight: 600; color: var(--navy); min-width: 100px; }
+    .service-badges { display: flex; gap: 6px; flex-wrap: wrap; flex: 1; }
+    .badge { font-size: 0.72rem; font-weight: 600; padding: 3px 10px; border-radius: 20px; }
+    .badge.present { background: var(--green-bg); color: var(--green); }
+    .badge.absent { background: var(--red-bg); color: var(--red); }
+    .badge.reason { background: var(--yellow-bg); color: #92400E; font-weight: 400; }
+
+    /* Shared */
+    .legend { display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 12px; }
+    .legend-item { display: flex; align-items: center; gap: 5px; font-size: 0.72rem; color: var(--gray-500); }
+    .notice { text-align: center; color: var(--gray-500); padding: 30px 0; font-size: 0.9rem; font-style: italic; }
+    .empty { text-align: center; color: var(--green); font-size: 0.9rem; font-weight: 600; padding: 30px 0; }
+    .last-updated { text-align: center; font-size: 0.75rem; color: var(--gray-500); margin-bottom: 12px; }
+    .refresh-btn { width: 100%; padding: 10px; background: var(--white); color: var(--navy); border: 1.5px solid var(--navy); border-radius: var(--radius); font-size: 0.88rem; font-weight: 600; font-family: 'Inter', sans-serif; cursor: pointer; margin-bottom: 12px; }
+    .toggle-wrap { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; }
+    .toggle-wrap span { font-size: 0.78rem; font-weight: 600; color: var(--gray-500); }
+    .color-toggle { display: flex; border: 1.5px solid var(--gray-300); border-radius: 20px; overflow: hidden; }
+    .color-btn { padding: 5px 14px; font-size: 0.75rem; font-weight: 600; cursor: pointer; border: none; background: var(--white); font-family: 'Inter', sans-serif; color: var(--gray-500); }
+    .color-btn.active-green { background: var(--green); color: white; }
+    .color-btn.active-red { background: var(--red); color: white; }
+    .filter-bar { display: flex; gap: 8px; margin-bottom: 14px; flex-wrap: wrap; }
+    .filter-btn { padding: 6px 14px; border-radius: 20px; border: 1.5px solid var(--gray-300); font-size: 0.78rem; font-weight: 600; cursor: pointer; background: var(--white); color: var(--gray-500); font-family: 'Inter', sans-serif; }
+    .filter-btn.active { background: var(--navy); border-color: var(--navy); color: white; }
+  </style>
+</head>
+<body>
+<header>
+  <h1>Coldwater Church of Christ</h1>
+  <p>Elder Portal</p>
+  <div class="tabs" id="tabBar">
+    <div class="tab active" onclick="switchTab('summary',this)">📋 Summary</div>
+    <div class="tab" onclick="switchTab('absences',this)">⚠️ Absences</div>
+    <div class="tab" onclick="switchTab('member',this)">👤 Member</div>
+  </div>
+</header>
+
+<div class="container">
+
+  <!-- PIN -->
+  <div id="pinScreen">
+    <div class="pin-card">
+      <h2>Elder Access</h2>
+      <p>Enter your PIN to access the elder portal.</p>
+      <input type="password" class="pin-input" id="pinInput" maxlength="4" placeholder="••••" onkeydown="if(event.key==='Enter')checkPin()"/>
+      <button class="pin-btn" onclick="checkPin()">Enter Portal</button>
+      <div class="pin-error" id="pinError">Incorrect PIN. Please try again.</div>
+    </div>
+  </div>
+
+  <div id="portalScreen">
+
+    <!-- SUMMARY TAB -->
+    <div class="tab-content active" id="tab-summary">
+      <button class="refresh-btn" onclick="loadData()">↻ Refresh Data</button>
+      <div class="last-updated" id="lastUpdated"></div>
+
+      <div class="card">
+        <div class="card-title">Overall — Last 52 Sundays</div>
+        <div class="stats">
+          <div class="stat-pill"><div class="num" id="totalMembers">—</div><div class="lbl">Members</div></div>
+          <div class="stat-pill"><div class="num" id="avgSunday" style="color:var(--green)">—</div><div class="lbl">Avg Sunday %</div></div>
+          <div class="stat-pill"><div class="num" id="belowThreshold" style="color:var(--red)">—</div><div class="lbl">Below 75%</div></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">Members</div>
+        <div class="search-wrap">
+          <span class="search-icon">🔍</span>
+          <input type="text" id="summarySearch" placeholder="Search members…" oninput="renderSummary()"/>
+        </div>
+        <div class="controls">
+          <button class="ctrl-btn active" onclick="setSort('az',this)">A–Z</button>
+          <button class="ctrl-btn" onclick="setSort('pct-high',this)">% High</button>
+          <button class="ctrl-btn" onclick="setSort('pct-low',this)">% Low</button>
+          <button class="ctrl-btn" onclick="setSort('missed',this)">Most Missed</button>
+        </div>
+        <div class="controls">
+          <button class="ctrl-btn active-green" id="summBtnGreen" onclick="setSummaryMode('green',this)">🟢 Present</button>
+          <button class="ctrl-btn" id="summBtnRed" onclick="setSummaryMode('red',this)">🔴 Absent</button>
+        </div>
+        <div class="legend" id="summaryLegend"></div>
+        <div id="summaryList"><div class="notice">Please select a filter or wait for data to load…</div></div>
+      </div>
+    </div>
+
+    <!-- ABSENCES TAB -->
+    <div class="tab-content" id="tab-absences">
+      <div class="card">
+        <div class="card-title">Consecutive Sunday Absences (2+ in a row)</div>
+        <div class="stats">
+          <div class="stat-pill"><div class="num" id="rTotalMembers">—</div><div class="lbl">Members</div></div>
+          <div class="stat-pill"><div class="num" id="rWarnCount" style="color:#92400E">—</div><div class="lbl">2 in a row</div></div>
+          <div class="stat-pill"><div class="num" id="rDangerCount" style="color:var(--red)">—</div><div class="lbl">3+ in a row</div></div>
+        </div>
+        <div class="filter-bar">
+          <button class="filter-btn active" onclick="setReportFilter('all',this)">All</button>
+          <button class="filter-btn" onclick="setReportFilter('2',this)">2 in a row</button>
+          <button class="filter-btn" onclick="setReportFilter('3',this)">3+ in a row</button>
+        </div>
+        <div id="reportList"><div class="notice">Please select a filter or wait for data to load…</div></div>
+      </div>
+    </div>
+
+    <!-- MEMBER TAB -->
+    <div class="tab-content" id="tab-member">
+      <div class="card">
+        <div class="card-title">Select Member</div>
+        <select class="member-select" id="memberSelect" onchange="renderMemberDetail(this.value)">
+          <option value="">Loading…</option>
+        </select>
+        <div class="member-header" id="memberHeader"></div>
+      </div>
+      <div class="card">
+        <div class="card-title">Attendance Summary</div>
+        <div class="stats-grid" id="memberStatsGrid"></div>
+      </div>
+      <div class="card">
+        <div class="card-title">Dot History</div>
+        <div class="toggle-wrap">
+          <span>View:</span>
+          <div class="color-toggle">
+            <button class="color-btn active-green" onclick="setMemberMode('green',this)">🟢 Present</button>
+            <button class="color-btn" onclick="setMemberMode('red',this)">🔴 Absent</button>
+          </div>
+        </div>
+        <div class="legend" id="memberLegend"></div>
+        <div class="dot-row" id="memberDotRow"></div>
+      </div>
+      <div class="card">
+        <div class="card-title">Service History</div>
+        <div id="memberServiceList"></div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+  var PIN = '2008';
+  var SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzRmZrAQoDyB16-rXnObdCqAz0Op_hhe_RbLQEOp9trs1pqn7ler-oTe5B2inU7LIqf/exec';
+
+  var summaryMode = 'green';
+  var memberMode = 'green';
+  var sortMode = 'az';
+  var reportFilter = 'all';
+  var memberStats = {};
+  var canonicalMembers = [];
+  var reportData = [];
+  var currentMember = '';
+  var dotCounter = 0;
+
+  // ── PIN ──────────────────────────────────────────────
+  function checkPin() {
+    if (document.getElementById('pinInput').value === PIN) {
+      document.getElementById('pinScreen').style.display = 'none';
+      document.getElementById('portalScreen').style.display = 'block';
+      document.getElementById('tabBar').classList.add('visible');
+      loadData();
+    } else {
+      document.getElementById('pinError').style.display = 'block';
+      document.getElementById('pinInput').value = '';
+    }
+  }
+
+  // ── TABS ─────────────────────────────────────────────
+  function switchTab(tab, btn) {
+    document.querySelectorAll('.tab').forEach(function(t){ t.classList.remove('active'); });
+    btn.classList.add('active');
+    document.querySelectorAll('.tab-content').forEach(function(c){ c.classList.remove('active'); });
+    document.getElementById('tab-'+tab).classList.add('active');
+    // Force re-render when switching tabs
+    if (tab === 'summary' && canonicalMembers.length > 0) {
+      dotCounter = 0;
+      renderLegend('summaryLegend', summaryMode);
+      renderSummary();
+    }
+    if (tab === 'absences' && canonicalMembers.length > 0) {
+      renderReport();
+    }
+    if (tab === 'member' && currentMember) {
+      renderMemberDetail(currentMember);
+    }
+  }
+
+  // ── LOAD DATA ────────────────────────────────────────
+  function loadData() {
+    canonicalMembers = [];
+    memberStats = {};
+    reportData = [];
+    dotCounter = 0;
+
+    document.getElementById('summaryList').innerHTML = '<div class="notice">Loading attendance data…</div>';
+    document.getElementById('reportList').innerHTML = '<div class="notice">Loading attendance data…</div>';
+
+    var url = SCRIPT_URL + '?action=summary&t=' + Date.now();
+
+    fetch(url, { redirect: 'follow' })
+      .then(function(response) {
+        return response.text();
+      })
+      .then(function(text) {
+        // Strip JSONP wrapper if present e.g. _summaryCallback([...])
+        var json = text.trim();
+        if (json.indexOf('(') !== -1) {
+          json = json.substring(json.indexOf('(') + 1, json.lastIndexOf(')'));
+        }
+        var data = JSON.parse(json);
+        processSummaryData(data);
+      })
+      .catch(function(err) {
+        document.getElementById('summaryList').innerHTML = '<div class="notice" style="color:var(--red)">Failed to load: ' + err.message + ' — please tap Refresh.</div>';
+        document.getElementById('reportList').innerHTML = '<div class="notice" style="color:var(--red)">Failed to load — please tap Refresh.</div>';
+      });
+
+    setTimeout(function() {
+      if (canonicalMembers.length === 0) {
+        document.getElementById('summaryList').innerHTML = '<div class="notice" style="color:var(--red)">Taking too long — please tap Refresh.</div>';
+        document.getElementById('reportList').innerHTML = '<div class="notice" style="color:var(--red)">Taking too long — please tap Refresh.</div>';
+      }
+    }, 30000);
+  }
+
+  // ── PROCESS DATA ─────────────────────────────────────
+  function processSummaryData(data) {
+    if (!Array.isArray(data) || data.length === 0 || !data[0].name) {
+      document.getElementById('summaryList').innerHTML = '<div class="notice" style="color:var(--red)">Data error: ' + JSON.stringify(data).substring(0,100) + '</div>';
+      document.getElementById('reportList').innerHTML = '<div class="notice" style="color:var(--red)">Data error.</div>';
+      return;
+    }
+
+    data.forEach(function(s) {
+      canonicalMembers.push(s.name);
+      memberStats[s.name] = s;
+    });
+
+    // Populate member dropdown
+    var sel = document.getElementById('memberSelect');
+    sel.innerHTML = canonicalMembers.map(function(n) {
+      return '<option value="'+n+'">'+n+'</option>';
+    }).join('');
+
+    // Build report data
+    reportData = [];
+    canonicalMembers.forEach(function(name) {
+      var s = memberStats[name];
+      if (s.currentAbsent >= 2) {
+        var lastMissed = '';
+        s.serviceHistory.forEach(function(r) {
+          if (!lastMissed && r.am !== 'Present' && (r.pm === null || r.pm !== 'Present')) {
+            lastMissed = r.date;
+          }
+        });
+        reportData.push({ name: name, consecutive: s.currentAbsent, lastMissed: lastMissed });
+      }
+    });
+    reportData.sort(function(a,b){ return b.consecutive - a.consecutive; });
+
+    // Overall stats
+    var pcts = canonicalMembers.map(function(n){ return memberStats[n].sundayPct; });
+    var avg = pcts.length ? Math.round(pcts.reduce(function(a,b){ return a+b; }, 0) / pcts.length) : 0;
+    var below = pcts.filter(function(p){ return p < 75; }).length;
+    document.getElementById('totalMembers').textContent = canonicalMembers.length;
+    document.getElementById('avgSunday').textContent = avg + '%';
+    document.getElementById('belowThreshold').textContent = below;
+    document.getElementById('rTotalMembers').textContent = canonicalMembers.length;
+    document.getElementById('lastUpdated').textContent = 'Last updated: ' + new Date().toLocaleTimeString();
+
+    // Debug — show count directly in list
+    document.getElementById('summaryList').innerHTML = '<div class="notice">Data loaded — ' + canonicalMembers.length + ' members. Rendering…</div>';
+
+    // Set first member
+    currentMember = canonicalMembers[0];
+    sel.value = currentMember;
+
+    // Render everything
+    renderLegend('summaryLegend', summaryMode);
+    renderSummary();
+    renderReport();
+    renderMemberDetail(currentMember);
+  }
+
+  // ── DOT ──────────────────────────────────────────────
+  function makeDot(type, m, size) {
+    size = size || 14;
+    var ac = m === 'green' ? '#16a34a' : '#dc2626';
+    var ec = '#e5e7eb';
+    var lf, rf;
+    if (m === 'green') {
+      lf = (type==='both'||type==='am') ? ac : ec;
+      rf = (type==='both'||type==='pm') ? ac : ec;
+    } else {
+      lf = (type==='none'||type==='pm') ? ac : ec;
+      rf = (type==='none'||type==='am') ? ac : ec;
+    }
+    var s = size + 'px';
+    var half = (size/2) + 'px';
+    // Use CSS linear-gradient split circle instead of SVG clip paths
+    return '<span style="' +
+      'display:inline-block;' +
+      'width:'+s+';height:'+s+';' +
+      'border-radius:50%;' +
+      'background:linear-gradient(to right, '+lf+' 50%, '+rf+' 50%);' +
+      'border:1px solid #d1d5db;' +
+      'flex-shrink:0;' +
+      'position:relative;' +
+      '" title="'+type+'"><span style="' +
+      'position:absolute;top:0;left:50%;transform:translateX(-50%);' +
+      'width:1px;height:100%;background:white;' +
+      '"></span></span>';
+  }
+
+  function renderLegend(id, m) {
+    var items = m === 'green'
+      ? [['both','Both'],['am','AM only'],['pm','PM only'],['none','Missed both']]
+      : [['none','Missed both'],['pm','Missed AM'],['am','Missed PM'],['both','Attended both']];
+    document.getElementById(id).innerHTML = items.map(function(i) {
+      return '<div class="legend-item">'+makeDot(i[0],m,14)+'<span>'+i[1]+'</span></div>';
+    }).join('');
+  }
+
+  // ── SUMMARY ──────────────────────────────────────────
+  function renderSummary() {
+    if (canonicalMembers.length === 0) return;
+    var q = document.getElementById('summarySearch').value.toLowerCase();
+    var list = canonicalMembers.filter(function(n){ return n.toLowerCase().indexOf(q) !== -1; });
+    list.sort(function(a,b) {
+      var sa = memberStats[a], sb = memberStats[b];
+      if (sortMode==='az') return a.localeCompare(b);
+      if (sortMode==='pct-high') return sb.sundayPct - sa.sundayPct;
+      if (sortMode==='pct-low') return sa.sundayPct - sb.sundayPct;
+      if (sortMode==='missed') return (sb.totalSundays-sb.sundayPresent)-(sa.totalSundays-sa.sundayPresent);
+      return 0;
+    });
+    document.getElementById('summaryList').innerHTML = list.map(function(name) {
+      var s = memberStats[name];
+      var cls = s.sundayPct >= 90 ? 'good' : s.sundayPct >= 75 ? 'warn' : 'poor';
+      var dots = s.dotHistory.map(function(t){ return makeDot(t, summaryMode, 14); }).join('');
+      return '<div class="member-row '+cls+'" onclick="goToMember(\''+name+'\')">'+
+        '<div class="member-top">'+
+        '<span class="member-name">'+name+' <span style="font-size:0.7rem;color:var(--gray-500)">→</span></span>'+
+        '<div class="pct-group">'+
+        '<div class="pct-pill sunday">'+s.sundayPct+'%<span class="pct-label">Sunday</span></div>'+
+        '<div class="pct-pill service">'+s.servicePct+'%<span class="pct-label">Service</span></div>'+
+        '</div></div>'+
+        '<div class="dot-row">'+dots+'</div>'+
+        '<div class="member-meta">'+s.sundayPresent+' of '+s.totalSundays+' Sundays · '+s.servicesPresent+' of '+s.totalServices+' services</div>'+
+        '</div>';
+    }).join('');
+  }
+
+  function setSort(s, btn) {
+    sortMode = s;
+    document.querySelectorAll('#tab-summary .ctrl-btn').forEach(function(b){
+      if (['A–Z','% High','% Low','Most Missed'].indexOf(b.textContent) !== -1) b.className = 'ctrl-btn';
+    });
+    btn.className = 'ctrl-btn active';
+    renderSummary();
+  }
+
+  function setSummaryMode(m, btn) {
+    summaryMode = m;
+    dotCounter = 0;
+    document.getElementById('summBtnGreen').className = 'ctrl-btn' + (m==='green' ? ' active-green' : '');
+    document.getElementById('summBtnRed').className = 'ctrl-btn' + (m==='red' ? ' active-red' : '');
+    renderLegend('summaryLegend', m);
+    renderSummary();
+  }
+
+  // ── ABSENCES ─────────────────────────────────────────
+  function renderReport() {
+    if (canonicalMembers.length === 0) return;
+    var warn = reportData.filter(function(r){ return r.consecutive === 2; }).length;
+    var danger = reportData.filter(function(r){ return r.consecutive >= 3; }).length;
+    document.getElementById('rWarnCount').textContent = warn;
+    document.getElementById('rDangerCount').textContent = danger;
+
+    var list = reportData;
+    if (reportFilter === '2') list = reportData.filter(function(r){ return r.consecutive === 2; });
+    else if (reportFilter === '3') list = reportData.filter(function(r){ return r.consecutive >= 3; });
+
+    if (list.length === 0) {
+      document.getElementById('reportList').innerHTML = '<div class="empty">🎉 No members with 2+ consecutive absences!</div>';
+      return;
+    }
+    document.getElementById('reportList').innerHTML = list.map(function(r) {
+      var bc = r.consecutive >= 3 ? 'danger' : 'warn';
+      return '<div class="report-card '+bc+'" onclick="goToMember(\''+r.name+'\')">'+
+        '<div class="report-info">'+
+        '<div class="name">'+r.name+' <span style="font-size:0.7rem;color:var(--gray-500)">→</span></div>'+
+        '<div class="last-missed">Last missed: '+formatDate(r.lastMissed)+'</div>'+
+        '</div>'+
+        '<span class="miss-badge '+bc+'">'+r.consecutive+' in a row</span>'+
+        '</div>';
+    }).join('');
+  }
+
+  function setReportFilter(f, btn) {
+    reportFilter = f;
+    document.querySelectorAll('.filter-btn').forEach(function(b){ b.classList.remove('active'); });
+    btn.classList.add('active');
+    renderReport();
+  }
+
+  // ── MEMBER DETAIL ────────────────────────────────────
+  function goToMember(name) {
+    currentMember = name;
+    document.getElementById('memberSelect').value = name;
+    document.querySelectorAll('.tab').forEach(function(t){ t.classList.remove('active'); });
+    document.querySelectorAll('.tab')[2].classList.add('active');
+    document.querySelectorAll('.tab-content').forEach(function(c){ c.classList.remove('active'); });
+    document.getElementById('tab-member').classList.add('active');
+    renderMemberDetail(name);
+  }
+
+  function renderMemberDetail(name) {
+    if (!name || !memberStats[name]) return;
+    currentMember = name;
+    var s = memberStats[name];
+
+    document.getElementById('memberHeader').innerHTML =
+      '<h2>'+name+'</h2>'+
+      '<div class="pct-group">'+
+      '<div class="pct-pill sunday">'+s.sundayPct+'%<span class="pct-label">Sunday</span></div>'+
+      '<div class="pct-pill service">'+s.servicePct+'%<span class="pct-label">Service</span></div>'+
+      '</div>';
+
+    document.getElementById('memberStatsGrid').innerHTML =
+      '<div class="stat-box good"><div class="num">'+s.sundayPresent+'</div><div class="lbl">Sundays Attended</div></div>'+
+      '<div class="stat-box bad"><div class="num">'+(s.totalSundays-s.sundayPresent)+'</div><div class="lbl">Sundays Missed</div></div>'+
+      '<div class="stat-box good"><div class="num">'+s.servicesPresent+'</div><div class="lbl">Services Attended</div></div>'+
+      '<div class="stat-box bad"><div class="num">'+(s.totalServices-s.servicesPresent)+'</div><div class="lbl">Services Missed</div></div>'+
+      '<div class="stat-box good"><div class="num">'+s.longestStreak+'</div><div class="lbl">Longest Present Streak</div></div>'+
+      '<div class="stat-box bad"><div class="num">'+s.currentAbsent+'</div><div class="lbl">Current Absent Streak</div></div>';
+
+    renderMemberDots(s.dotHistory);
+
+    if (!s.serviceHistory || s.serviceHistory.length === 0) {
+      document.getElementById('memberServiceList').innerHTML = '<div class="notice">No records found.</div>';
+      return;
+    }
+    document.getElementById('memberServiceList').innerHTML = s.serviceHistory.map(function(row) {
+      var d = formatDate(row.date);
+      var amB = '<span class="badge '+(row.am==='Present'?'present':'absent')+'">'+(row.am==='Present'?'AM Present':'AM Absent')+'</span>';
+      var pmB = row.pm !== null ? '<span class="badge '+(row.pm==='Present'?'present':'absent')+'">'+(row.pm==='Present'?'PM Present':'PM Absent')+'</span>' : '';
+      var rB = (row.am!=='Present'||(row.pm!==null&&row.pm!=='Present')) && row.reason ? '<span class="badge reason">'+row.reason+'</span>' : '';
+      return '<div class="service-row"><span class="service-date">'+d+'</span><div class="service-badges">'+amB+pmB+rB+'</div></div>';
+    }).join('');
+  }
+
+  function renderMemberDots(history) {
+    dotCounter = 0;
+    document.getElementById('memberDotRow').innerHTML = history.map(function(t){ return makeDot(t, memberMode, 16); }).join('');
+    renderLegend('memberLegend', memberMode);
+  }
+
+  function setMemberMode(m, btn) {
+    memberMode = m;
+    document.querySelectorAll('#tab-member .color-btn').forEach(function(b){ b.className = 'color-btn'; });
+    btn.className = 'color-btn active-' + m;
+    if (memberStats[currentMember]) renderMemberDots(memberStats[currentMember].dotHistory);
+  }
+
+  // ── HELPERS ──────────────────────────────────────────
+  function formatDate(dateStr) {
+    if (!dateStr) return '';
+    var s = dateStr.toString().trim(), d;
+    if (/^\d{4}-\d{2}-\d{2}/.test(s)) {
+      var p = s.substring(0,10).split('-');
+      d = new Date(parseInt(p[0]), parseInt(p[1])-1, parseInt(p[2]));
+    } else if (s.indexOf('/') !== -1) {
+      var p = s.split('/');
+      d = new Date(parseInt(p[2]), parseInt(p[0])-1, parseInt(p[1]));
+    } else { d = new Date(s); }
+    if (!d || isNaN(d.getTime())) return s;
+    return d.toLocaleDateString('en-US', { month:'short', day:'numeric', year:'numeric' });
+  }
+</script>
+</body>
+</html>
