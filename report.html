@@ -291,7 +291,6 @@
       delete window._summaryCallback;
       var s=document.getElementById('mScript'); if(s)s.remove();
       processSummaryData(data);
-      dataLoaded = true;
     };
     var ms=document.createElement('script');
     ms.id='mScript';
@@ -348,19 +347,21 @@
     currentMember = canonicalMembers[0];
     document.getElementById('memberSelect').value = currentMember;
 
+    dataLoaded = true;
     renderLegend('summaryLegend', summaryMode);
     renderSummary();
     renderReport();
     renderMemberDetail(currentMember);
   }
 
+  var dotCounter = 0;
   function makeDot(type,m,size){
     size=size||14;
     var ac=m==='green'?'#16a34a':'#dc2626',ec='#e5e7eb';
     var lf,rf;
     if(m==='green'){lf=(type==='both'||type==='am')?ac:ec;rf=(type==='both'||type==='pm')?ac:ec;}
     else{lf=(type==='none'||type==='pm')?ac:ec;rf=(type==='none'||type==='am')?ac:ec;}
-    var uid=Math.random().toString(36).substr(2,8);
+    var uid='d'+(dotCounter++);
     return '<svg width="'+size+'" height="'+size+'" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg">' +
       '<defs><clipPath id="R'+uid+'"><rect x="8" y="0" width="8" height="16"/></clipPath></defs>' +
       '<circle cx="8" cy="8" r="7" fill="'+lf+'"/>' +
