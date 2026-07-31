@@ -287,107 +287,68 @@
     document.getElementById('reportList').innerHTML = '<div class="loading">Loading…</div>';
     document.getElementById('memberServiceList').innerHTML = '<div class="loading">Loading…</div>';
 
-    window._membersCallback = function(data) {
-      canonicalMembers = data.map(function(m){ return m.firstName+' '+m.lastName; });
-      delete window._membersCallback;
+    window._summaryCallback = function(data) {
+      delete window._summaryCallback;
       var s=document.getElementById('mScript'); if(s)s.remove();
-
-      var sel = document.getElementById('memberSelect');
-      sel.innerHTML = canonicalMembers.map(function(n){return '<option value="'+n+'">'+n+'</option>';}).join('');
-
-      window._reportCallback = function(rows) {
-        allRows = rows;
-        delete window._reportCallback;
-        var s2=document.getElementById('rScript'); if(s2)s2.remove();
-        processAllData();
-        dataLoaded = true;
-      };
-      var rs=document.createElement('script');
-      rs.id='rScript';
-      rs.src=SCRIPT_URL+'?callback=_reportCallback&action=report';
-      document.body.appendChild(rs);
+      processSummaryData(data);
+      dataLoaded = true;
     };
     var ms=document.createElement('script');
     ms.id='mScript';
-    ms.src=SCRIPT_URL+'?callback=_membersCallback';
+    ms.src=SCRIPT_URL+'?callback=_summaryCallback&action=summary';
     document.body.appendChild(ms);
+
+    setTimeout(function(){
+      if(!dataLoaded){
+        document.getElementById('summaryList').innerHTML='<div class="loading" style="color:#991B1B">Taking longer than expected — please tap Refresh.</div>';
+        document.getElementById('reportList').innerHTML='<div class="loading" style="color:#991B1B">Taking longer than expected — please tap Refresh.</div>';
+        document.getElementById('memberServiceList').innerHTML='<div class="loading" style="color:#991B1B">Taking longer than expected — please tap Refresh.</div>';
+      }
+    }, 30000);
   }
 
-  function processAllData() {
-    var sundayDates=[];
-    allRows.filter(function(r){return r[2]==='Sunday AM';}).forEach(function(r){
-      if(sundayDates.indexOf(r[1])===-1) sundayDates.push(r[1]);
+  function processSummaryData(data) {
+    // Data comes pre-processed from server
+    memberStats = {};
+    canonicalMembers = [];
+
+    data.forEach(function(s) {
+      canonicalMembers.push(s.name);
+      memberStats[s.name] = s;
     });
-    sundayDates.sort();
-    if(sundayDates.length>52) sundayDates=sundayDates.slice(sundayDates.length-52);
 
-    memberStats={};
-    canonicalMembers.forEach(function(name){
-      var amByDate={},pmByDate={},reasonByDate={};
-      allRows.filter(function(r){return r[2]==='Sunday AM'||r[2]==='Sunday PM';}).forEach(function(r){
-        if(r[3]!==name) return;
-        if(r[2]==='Sunday AM'){amByDate[r[1]]=r[4];if(r[5])reasonByDate[r[1]]=r[5];}
-        if(r[2]==='Sunday PM'){pmByDate[r[1]]=r[4];if(r[5]&&!reasonByDate[r[1]])reasonByDate[r[1]]=r[5];}
-      });
-
-      var dotHistory=[],sundayPresent=0,totalServices=0,servicesPresent=0;
-      var consecutive=0,longestStreak=0,currentAbsent=0,consecutiveAbsent=0;
-      var serviceHistory=[];
-
-      sundayDates.forEach(function(date){
-        var am=amByDate[date]||'Absent',pm=pmByDate[date]||'Absent';
-        var amP=am==='Present',pmP=pm==='Present';
-        totalServices+=2;
-        if(amP)servicesPresent++;
-        if(pmP)servicesPresent++;
-        var type=amP&&pmP?'both':amP?'am':pmP?'pm':'none';
-        dotHistory.push(type);
-        var attended=amP||pmP;
-        if(attended){sundayPresent++;consecutive++;if(consecutive>longestStreak)longestStreak=consecutive;currentAbsent=0;consecutiveAbsent=0;}
-        else{currentAbsent++;consecutiveAbsent++;consecutive=0;}
-        serviceHistory.push({date:date,am:am,pm:pm,reason:reasonByDate[date]||''});
-      });
-
-      memberStats[name]={
-        dotHistory:dotHistory,
-        sundayPct:sundayDates.length?Math.round(sundayPresent/sundayDates.length*100):0,
-        servicePct:totalServices?Math.round(servicesPresent/totalServices*100):0,
-        sundayPresent:sundayPresent,
-        totalSundays:sundayDates.length,
-        servicesPresent:servicesPresent,
-        totalServices:totalServices,
-        longestStreak:longestStreak,
-        currentAbsent:consecutiveAbsent,
-        serviceHistory:serviceHistory.reverse()
-      };
-    });
+    // Populate member dropdown
+    var sel = document.getElementById('memberSelect');
+    sel.innerHTML = canonicalMembers.map(function(n){return '<option value="'+n+'">'+n+'</option>';}).join('');
 
     // Build report data
-    reportData=[];
-    canonicalMembers.forEach(function(name){
-      var s=memberStats[name];
-      if(s.currentAbsent>=2){
-        var lastMissed='';
-        s.serviceHistory.forEach(function(r){if(!lastMissed&&(r.am!=='Present'&&r.pm!=='Present'))lastMissed=r.date;});
-        reportData.push({name:name,consecutive:s.currentAbsent,lastMissed:lastMissed});
+    reportData = [];
+    canonicalMembers.forEach(function(name) {
+      var s = memberStats[name];
+      if (s.currentAbsent >= 2) {
+        var lastMissed = '';
+        s.serviceHistory.forEach(function(r) {
+          if (!lastMissed && r.am !== 'Present' && r.pm !== 'Present') lastMissed = r.date;
+        });
+        reportData.push({ name: name, consecutive: s.currentAbsent, lastMissed: lastMissed });
       }
     });
-    reportData.sort(function(a,b){return b.consecutive-a.consecutive;});
+    reportData.sort(function(a,b){ return b.consecutive - a.consecutive; });
 
     // Overall stats
-    var pcts=canonicalMembers.map(function(n){return memberStats[n].sundayPct;});
-    var avg=pcts.length?Math.round(pcts.reduce(function(a,b){return a+b;},0)/pcts.length):0;
-    var below=pcts.filter(function(p){return p<75;}).length;
-    document.getElementById('totalMembers').textContent=canonicalMembers.length;
-    document.getElementById('avgSunday').textContent=avg+'%';
-    document.getElementById('belowThreshold').textContent=below;
-    document.getElementById('rTotalMembers').textContent=canonicalMembers.length;
-    document.getElementById('lastUpdated').textContent='Last updated: '+new Date().toLocaleTimeString();
+    var pcts = canonicalMembers.map(function(n){ return memberStats[n].sundayPct; });
+    var avg = pcts.length ? Math.round(pcts.reduce(function(a,b){return a+b;},0)/pcts.length) : 0;
+    var below = pcts.filter(function(p){ return p < 75; }).length;
+    document.getElementById('totalMembers').textContent = canonicalMembers.length;
+    document.getElementById('avgSunday').textContent = avg + '%';
+    document.getElementById('belowThreshold').textContent = below;
+    document.getElementById('rTotalMembers').textContent = canonicalMembers.length;
+    document.getElementById('lastUpdated').textContent = 'Last updated: ' + new Date().toLocaleTimeString();
 
-    currentMember=canonicalMembers[0];
-    document.getElementById('memberSelect').value=currentMember;
+    currentMember = canonicalMembers[0];
+    document.getElementById('memberSelect').value = currentMember;
 
-    renderLegend('summaryLegend',summaryMode);
+    renderLegend('summaryLegend', summaryMode);
     renderSummary();
     renderReport();
     renderMemberDetail(currentMember);
@@ -514,8 +475,8 @@
     document.getElementById('memberServiceList').innerHTML=s.serviceHistory.map(function(row){
       var d=formatDate(row.date);
       var amB='<span class="badge '+(row.am==='Present'?'present':'absent')+'">'+(row.am==='Present'?'AM Present':'AM Absent')+'</span>';
-      var pmB='<span class="badge '+(row.pm==='Present'?'present':'absent')+'">'+(row.pm==='Present'?'PM Present':'PM Absent')+'</span>';
-      var rB=(row.am!=='Present'||row.pm!=='Present')&&row.reason?'<span class="badge reason">'+row.reason+'</span>':'';
+      var pmB=row.pm!==null?'<span class="badge '+(row.pm==='Present'?'present':'absent')+'">'+(row.pm==='Present'?'PM Present':'PM Absent')+'</span>':'';
+      var rB=(row.am!=='Present'||(row.pm!==null&&row.pm!=='Present'))&&row.reason?'<span class="badge reason">'+row.reason+'</span>':'';
       return '<div class="service-row"><span class="service-date">'+d+'</span><div class="service-badges">'+amB+pmB+rB+'</div></div>';
     }).join('');
   }
