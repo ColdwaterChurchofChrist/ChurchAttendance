@@ -370,6 +370,9 @@
     document.getElementById('rTotalMembers').textContent = canonicalMembers.length;
     document.getElementById('lastUpdated').textContent = 'Last updated: ' + new Date().toLocaleTimeString();
 
+    // Debug — show count directly in list
+    document.getElementById('summaryList').innerHTML = '<div class="notice">Data loaded — ' + canonicalMembers.length + ' members. Rendering…</div>';
+
     // Set first member
     currentMember = canonicalMembers[0];
     sel.value = currentMember;
