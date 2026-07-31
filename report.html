@@ -348,10 +348,12 @@
     document.getElementById('memberSelect').value = currentMember;
 
     dataLoaded = true;
-    renderLegend('summaryLegend', summaryMode);
-    renderSummary();
-    renderReport();
-    renderMemberDetail(currentMember);
+    setTimeout(function() {
+      renderLegend('summaryLegend', summaryMode);
+      renderSummary();
+      renderReport();
+      renderMemberDetail(currentMember);
+    }, 100);
   }
 
   var dotCounter = 0;
