@@ -587,12 +587,14 @@
   }
 
   function setReason(name, reason) {
-    attendance[name].reason = reason;
-    if (reason !== 'Other') {
-      var search = document.getElementById('searchInput').value.toLowerCase();
-      var filtered = members.filter(function(m) { return m.toLowerCase().indexOf(search) !== -1; });
-      renderMembers(filtered);
+    if (reason === 'Other') {
+      attendance[name].reason = '';
+    } else {
+      attendance[name].reason = reason;
     }
+    var search = document.getElementById('searchInput').value.toLowerCase();
+    var filtered = members.filter(function(m) { return m.toLowerCase().indexOf(search) !== -1; });
+    renderMembers(filtered);
   }
 
   function setCustomReason(name, value) {
@@ -641,12 +643,16 @@
       return { name: name, status: attendance[name].status, reason: attendance[name].reason || '' };
     });
 
+    var presentNames = members.filter(function(name) {
+      return attendance[name].status === 'Present';
+    });
+
     try {
       await fetch(SCRIPT_URL, {
         method: 'POST',
         mode: 'no-cors',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ date: serviceDate, serviceType: serviceType, submittedBy: submittedBy, attendees: attendees, sendEmail: sendEmail })
+        body: JSON.stringify({ date: serviceDate, serviceType: serviceType, submittedBy: submittedBy, attendees: attendees, sendEmail: sendEmail, presentNames: presentNames })
       });
 
       showMsg('✓ Attendance submitted successfully!', 'success');
